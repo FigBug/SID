@@ -17,6 +17,21 @@ const char* SIDAudioProcessor::paramA1          = "a1";
 const char* SIDAudioProcessor::paramD1          = "d1";
 const char* SIDAudioProcessor::paramS1          = "s1";
 const char* SIDAudioProcessor::paramR1          = "r1";
+
+const char* SIDAudioProcessor::paramPulseWidth2 = "pw2";
+const char* SIDAudioProcessor::paramWave2       = "w2";
+const char* SIDAudioProcessor::paramA2          = "a2";
+const char* SIDAudioProcessor::paramD2          = "d2";
+const char* SIDAudioProcessor::paramS2          = "s2";
+const char* SIDAudioProcessor::paramR2          = "r2";
+
+const char* SIDAudioProcessor::paramPulseWidth3 = "pw3";
+const char* SIDAudioProcessor::paramWave3       = "w3";
+const char* SIDAudioProcessor::paramA3          = "a3";
+const char* SIDAudioProcessor::paramD3          = "d3";
+const char* SIDAudioProcessor::paramS3          = "s3";
+const char* SIDAudioProcessor::paramR3          = "r3";
+
 const char* SIDAudioProcessor::paramVol         = "vol";
 
 //==============================================================================
@@ -45,12 +60,27 @@ String speedTextFunction (const slParameter& p)
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
 {
-    addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Width",  "Width 1", "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f));
-    addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",   "Wave 1",  "", 0.0f, 3.0f,  1.0f, 0.0f, 1.0f));
-    addPluginParameter (new slParameter (paramA1,           "Pulse 1 A",      "A 1",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramD1,           "Pulse 1 D",      "D 1",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramS1,           "Pulse 1 S",      "S 1",     "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f));
-    addPluginParameter (new slParameter (paramR1,           "Pulse 1 R",      "R 1",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Width",  "Width", "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f));
+    addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",   "Wave",  "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f));
+    addPluginParameter (new slParameter (paramA1,           "Pulse 1 A",      "A",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramD1,           "Pulse 1 D",      "D",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramS1,           "Pulse 1 S",      "S",     "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f));
+    addPluginParameter (new slParameter (paramR1,           "Pulse 1 R",      "R",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+
+    addPluginParameter (new slParameter (paramPulseWidth2,  "Pulse 2 Width",  "Width", "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f));
+    addPluginParameter (new slParameter (paramWave2,        "Pulse 2 Wave",   "Wave",  "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramA2,           "Pulse 2 A",      "A",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramD2,           "Pulse 2 D",      "D",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramS2,           "Pulse 2 S",      "S",     "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f));
+    addPluginParameter (new slParameter (paramR2,           "Pulse 2 R",      "R",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+
+    addPluginParameter (new slParameter (paramPulseWidth3,  "Pulse 3 Width",  "Width", "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f));
+    addPluginParameter (new slParameter (paramWave3,        "Pulse 3 Wave",   "Wave",  "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramA3,           "Pulse 3 A",      "A",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramD3,           "Pulse 3 D",      "D",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramS3,           "Pulse 3 S",      "S",     "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f));
+    addPluginParameter (new slParameter (paramR3,           "Pulse 3 R",      "R",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    
     addPluginParameter (new slParameter (paramVol,          "Volume",         "Volume",  "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f));
 }
 
@@ -125,7 +155,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
         if (curNote != lastNote)
         {
             // Channel 1
-            if (curNote != -1)
+            if (curNote != -1 && parameterIntValue (paramWave1))
             {
                 // set adsr
                 int a = parameterValue (paramA1);
@@ -133,13 +163,13 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 int s = parameterValue (paramS1);
                 int r = parameterValue (paramR1);
                 
-                sid.write (5, (a << 4) | d);
-                sid.write (6, (s << 4) | r);
+                sid.write (0x05, (a << 4) | d);
+                sid.write (0x06, (s << 4) | r);
                 
                 // set duty
                 int duty = parameterValue (paramPulseWidth1);
-                sid.write (2, duty & 0xFF);
-                sid.write (3, duty >> 8);
+                sid.write (0x02, duty & 0xFF);
+                sid.write (0x03, duty >> 8);
                 
                 // set freq
                 float freq = MidiMessage::getMidiNoteInHertz (curNote);
@@ -149,14 +179,90 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x01, period >> 8);
                 
                 // set wave on
-                uint8_t wave = 1 << ((int) parameterValue (paramWave1));
+                uint8_t waveType = parameterIntValue (paramWave1);
+                uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
                 sid.write (0x04, (wave << 4) | 0x01);
             }
             else
             {
                 // set wave off
-                uint8_t wave = 1 << ((int) parameterValue (paramWave1));
+                uint8_t waveType = parameterIntValue (paramWave1);
+                uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
                 sid.write (0x04, (wave << 4) | 0x00);
+            }
+
+            // Channel 2
+            if (curNote != -1 && parameterIntValue (paramWave2))
+            {
+                // set adsr
+                int a = parameterValue (paramA2);
+                int d = parameterValue (paramD2);
+                int s = parameterValue (paramS2);
+                int r = parameterValue (paramR2);
+                
+                sid.write (0x0C, (a << 4) | d);
+                sid.write (0x0D, (s << 4) | r);
+                
+                // set duty
+                int duty = parameterValue (paramPulseWidth2);
+                sid.write (0x09, duty & 0xFF);
+                sid.write (0x0A, duty >> 8);
+                
+                // set freq
+                float freq = MidiMessage::getMidiNoteInHertz (curNote);
+                int period = freq * (14 * pow (2, 24)) / 14318182;
+                
+                sid.write (0x07, period & 0xFF);
+                sid.write (0x08, period >> 8);
+                
+                // set wave on
+                uint8_t waveType = parameterIntValue (paramWave2);
+                uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+                sid.write (0x0B, (wave << 4) | 0x01);
+            }
+            else
+            {
+                // set wave off
+                uint8_t waveType = parameterIntValue (paramWave2);
+                uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+                sid.write (0x0B, (wave << 4) | 0x00);
+            }
+            
+            // Channel 3
+            if (curNote != -1 && parameterIntValue (paramWave3))
+            {
+                // set adsr
+                int a = parameterValue (paramA3);
+                int d = parameterValue (paramD3);
+                int s = parameterValue (paramS3);
+                int r = parameterValue (paramR3);
+                
+                sid.write (0x13, (a << 4) | d);
+                sid.write (0x14, (s << 4) | r);
+                
+                // set duty
+                int duty = parameterValue (paramPulseWidth3);
+                sid.write (0x10, duty & 0xFF);
+                sid.write (0x11, duty >> 8);
+                
+                // set freq
+                float freq = MidiMessage::getMidiNoteInHertz (curNote);
+                int period = freq * (14 * pow (2, 24)) / 14318182;
+                
+                sid.write (0x0E, period & 0xFF);
+                sid.write (0x0F, period >> 8);
+                
+                // set wave on
+                uint8_t waveType = parameterIntValue (paramWave3);
+                uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+                sid.write (0x12, (wave << 4) | 0x01);
+            }
+            else
+            {
+                // set wave off
+                uint8_t waveType = parameterIntValue (paramWave3);
+                uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+                sid.write (0x12, (wave << 4) | 0x00);
             }
             
             sid.write (0x18, parameterIntValue (paramVol));

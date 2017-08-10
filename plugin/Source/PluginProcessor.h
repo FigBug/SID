@@ -37,12 +37,24 @@ public:
 
     //==============================================================================
     
-    static const char* paramPulseWidth1;
     static const char* paramWave1;
+    static const char* paramPulseWidth1;
     static const char* paramA1;
     static const char* paramD1;
     static const char* paramS1;
     static const char* paramR1;
+    static const char* paramWave2;
+    static const char* paramPulseWidth2;
+    static const char* paramA2;
+    static const char* paramD2;
+    static const char* paramS2;
+    static const char* paramR2;
+    static const char* paramWave3;
+    static const char* paramPulseWidth3;
+    static const char* paramA3;
+    static const char* paramD3;
+    static const char* paramS3;
+    static const char* paramR3;
     static const char* paramVol;
 
 private:
