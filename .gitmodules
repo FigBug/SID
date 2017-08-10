@@ -1,0 +1,6 @@
+[submodule "modules/dRowAudio"]
+	path = modules/dRowAudio
+	url = git@github.com:FigBug/drowaudio.git
+[submodule "modules/slCommon"]
+	path = modules/slCommon
+	url = git@github.com:FigBug/slCommon.git
