@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+*.xcuserstate
+Debug
+Release
+Debug64
+Release64
