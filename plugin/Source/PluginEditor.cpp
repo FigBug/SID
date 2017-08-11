@@ -54,7 +54,7 @@ void SIDAudioProcessorEditor::paint (Graphics& g)
     g.setColour (Colours::white);
     g.drawText("Ver: " JucePlugin_VersionString, getLocalBounds().reduced (4), Justification::topRight);
     
-    g.drawImageAt (logo, getWidth() / 2 - logo.getWidth() / 2, headerHeight / 2 - logo.getHeight() / 2);
+    g.drawImageAt (logo, getWidth() / 2 - logo.getWidth() / 2, 0);
 }
 
 void SIDAudioProcessorEditor::resized()
