@@ -35,7 +35,7 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     addAndMakeVisible (&scope);
     
-    setGridSize (10, 4);
+    setGridSize (13, 3);
     
     scope.setNumSamplesPerPixel (2);
     scope.setVerticalZoomFactor (3.0f);
@@ -68,9 +68,13 @@ void SIDAudioProcessorEditor::resized()
     int idx = 0;
     for (slParameter* pp : processor.getPluginParameters())
     {
-        componentForId (pp->getUid())->setBounds (getGridArea (idx % 6, idx / 6));
+        if (idx < 18)
+            componentForId (pp->getUid())->setBounds (getGridArea (idx % 6, idx / 6));
+        else
+            componentForId (pp->getUid())->setBounds (getGridArea (10 + (idx - 18) % 3, (idx - 18) / 3));
+
         idx++;
     }
 
-    scope.setBounds (getGridArea (6, 0, 4, 2).reduced (5));
+    scope.setBounds (getGridArea (6, 0, 4, 3).reduced (5));
 }

@@ -32,12 +32,21 @@ const char* SIDAudioProcessor::paramD3          = "d3";
 const char* SIDAudioProcessor::paramS3          = "s3";
 const char* SIDAudioProcessor::paramR3          = "r3";
 
+const char* SIDAudioProcessor::paramCutoff      = "cutoff";
+const char* SIDAudioProcessor::paramReso        = "reso";
+const char* SIDAudioProcessor::paramFilter1     = "f1";
+const char* SIDAudioProcessor::paramFilter2     = "f2";
+const char* SIDAudioProcessor::paramFilter3     = "f3";
+const char* SIDAudioProcessor::paramLP          = "lowpass";
+const char* SIDAudioProcessor::paramBP          = "bandpass";
+const char* SIDAudioProcessor::paramHP          = "highpass";
+
 const char* SIDAudioProcessor::paramVol         = "vol";
 
 //==============================================================================
-String percentTextFunction (const slParameter&, float userValue)
+String percentTextFunction (const slParameter& p, float userValue)
 {
-    return String::formatted ("%.0f%%", userValue * 100);
+    return String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
 }
 
 String dutyCycleTextFunction (const slParameter&, float userValue)
@@ -48,6 +57,16 @@ String dutyCycleTextFunction (const slParameter&, float userValue)
 String typeTextFunction (const slParameter&, float userValue)
 {
     return userValue > 0.0f ? "White" : "Periodic";
+}
+
+String filterTextFunction (const slParameter&, float userValue)
+{
+    return userValue > 0.0f ? "Filter" : "Bypass";
+}
+
+String onOffTextFunction (const slParameter&, float userValue)
+{
+    return userValue > 0.0f ? "On" : "Off";
 }
 
 String waveTextFunction (const slParameter&, float userValue)
@@ -140,7 +159,15 @@ SIDAudioProcessor::SIDAudioProcessor()
     addPluginParameter (new slParameter (paramS3,           "Pulse 3 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
     addPluginParameter (new slParameter (paramR3,           "Pulse 3 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     
-    addPluginParameter (new slParameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f));
+    addPluginParameter (new slParameter (paramFilter1,      "Filter Ch 1",        "Ch 1",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
+    addPluginParameter (new slParameter (paramFilter2,      "Filter Ch 2",        "Ch 2",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
+    addPluginParameter (new slParameter (paramFilter3,      "Filter Ch 3",        "Ch 3",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
+    addPluginParameter (new slParameter (paramLP,           "Low Pass",           "LP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new slParameter (paramBP,           "Band Pass",          "BP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new slParameter (paramHP,           "High Pass",          "HP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new slParameter (paramCutoff,       "Cutoff",             "Cutoff",     "", 0.0f, 2047.0f, 1.0f, 1024.0f, 1.0f, percentTextFunction));
+    addPluginParameter (new slParameter (paramReso,         "Resonance",          "Reso",       "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, percentTextFunction));
+    addPluginParameter (new slParameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f, percentTextFunction));
 }
 
 SIDAudioProcessor::~SIDAudioProcessor()
@@ -185,6 +212,22 @@ void SIDAudioProcessor::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
 
 void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
 {
+    // Update the filters
+    sid.write (0x15, parameterIntValue (paramCutoff) & 0x7);
+    sid.write (0x16, parameterIntValue (paramCutoff) >> 3);
+    
+    sid.write (0x17,
+               parameterIntValue (paramReso) << 4 |
+               parameterIntValue (paramFilter3) << 2 |
+               parameterIntValue (paramFilter2) << 1 |
+               parameterIntValue (paramFilter1) << 0);
+    
+    sid.write (0x18,
+               parameterIntValue(paramHP) << 6 |
+               parameterIntValue(paramBP) << 5 |
+               parameterIntValue(paramLP) << 4 |
+               parameterIntValue (paramVol));
+    
     int done = 0;
     runUntil (done, buffer, 0);
     
@@ -323,8 +366,6 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
                 sid.write (0x12, (wave << 4) | 0x00);
             }
-            
-            sid.write (0x18, parameterIntValue (paramVol));
             
             lastNote = curNote;
         }

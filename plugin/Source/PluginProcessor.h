@@ -55,6 +55,14 @@ public:
     static const char* paramD3;
     static const char* paramS3;
     static const char* paramR3;
+    static const char* paramCutoff;
+    static const char* paramReso;
+    static const char* paramFilter1;
+    static const char* paramFilter2;
+    static const char* paramFilter3;
+    static const char* paramLP;
+    static const char* paramBP;
+    static const char* paramHP;
     static const char* paramVol;
 
 private:
