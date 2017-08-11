@@ -35,53 +35,112 @@ const char* SIDAudioProcessor::paramR3          = "r3";
 const char* SIDAudioProcessor::paramVol         = "vol";
 
 //==============================================================================
-String percentTextFunction (const slParameter& p)
+String percentTextFunction (const slParameter&, float userValue)
 {
-    return String::formatted("%.0f%%", p.getUserValue() * 100);
+    return String::formatted ("%.0f%%", userValue * 100);
 }
 
-String typeTextFunction (const slParameter& p)
+String dutyCycleTextFunction (const slParameter&, float userValue)
 {
-    return p.getUserValue() > 0.0f ? "White" : "Periodic";
+    return String::formatted ("%.0f%%", userValue / 4095.0 * 100);
 }
 
-String speedTextFunction (const slParameter& p)
+String typeTextFunction (const slParameter&, float userValue)
 {
-    switch (int (p.getUserValue()))
+    return userValue > 0.0f ? "White" : "Periodic";
+}
+
+String waveTextFunction (const slParameter&, float userValue)
+{
+    switch (int (userValue))
     {
-        case 0: return "Fast";
-        case 1: return "Medium";
-        case 2: return "Slow";
-        case 3: return "Tone 2";
+        case 0: return "Off";
+        case 1: return "Triangle";
+        case 2: return "Saw";
+        case 3: return "Square";
+        case 4: return "Noise";
     }
     return "";
+}
+
+String aTextFunction (const slParameter&, float userValue)
+{
+    switch (int (userValue))
+    {
+        case 0: return "2 ms";
+        case 1: return "8 ms";
+        case 2: return "16 ms";
+        case 3: return "24 ms";
+        case 4: return "38 ms";
+        case 5: return "56 ms";
+        case 6: return "68 ms";
+        case 7: return "80 ms";
+        case 8: return "100 ms";
+        case 9: return "240 ms";
+        case 10: return "500 ms";
+        case 11: return "800 ms";
+        case 12: return "1 s";
+        case 13: return "3 s";
+        case 14: return "5 s";
+        case 15: return "8 s";
+        default: return "";
+    }
+}
+
+String drTextFunction (const slParameter&, float userValue)
+{
+    switch (int (userValue))
+    {
+        case 0: return "6 ms";
+        case 1: return "24 ms";
+        case 2: return "48 ms";
+        case 3: return "72 ms";
+        case 4: return "114 ms";
+        case 5: return "168 ms";
+        case 6: return "204 ms";
+        case 7: return "240 ms";
+        case 8: return "300 ms";
+        case 9: return "750 ms";
+        case 10: return "1.5 s";
+        case 11: return "2.4 s";
+        case 12: return "3 s";
+        case 13: return "9 s";
+        case 14: return "15 s";
+        case 15: return "24 s";
+        default: return "";
+    }
+}
+
+String sTextFunction (const slParameter&, float userValue)
+{
+    return String::formatted ("%.0f%%", userValue / 15 * 100);
 }
 
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
 {
-    addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Width",  "Width", "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f));
-    addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",   "Wave",  "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f));
-    addPluginParameter (new slParameter (paramA1,           "Pulse 1 A",      "A",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramD1,           "Pulse 1 D",      "D",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramS1,           "Pulse 1 S",      "S",     "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f));
-    addPluginParameter (new slParameter (paramR1,           "Pulse 1 R",      "R",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f, waveTextFunction));
+    addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Duty Cycle", "D.C.",       "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new slParameter (paramA1,           "Pulse 1 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
+    addPluginParameter (new slParameter (paramD1,           "Pulse 1 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new slParameter (paramS1,           "Pulse 1 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
+    addPluginParameter (new slParameter (paramR1,           "Pulse 1 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
 
-    addPluginParameter (new slParameter (paramPulseWidth2,  "Pulse 2 Width",  "Width", "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f));
-    addPluginParameter (new slParameter (paramWave2,        "Pulse 2 Wave",   "Wave",  "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f));
-    addPluginParameter (new slParameter (paramA2,           "Pulse 2 A",      "A",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramD2,           "Pulse 2 D",      "D",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramS2,           "Pulse 2 S",      "S",     "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f));
-    addPluginParameter (new slParameter (paramR2,           "Pulse 2 R",      "R",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramWave2,        "Pulse 2 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
+    addPluginParameter (new slParameter (paramPulseWidth2,  "Pulse 2 Duty Cycle", "D.C.",       "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new slParameter (paramA2,           "Pulse 2 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
+    addPluginParameter (new slParameter (paramD2,           "Pulse 2 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new slParameter (paramS2,           "Pulse 2 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
+    addPluginParameter (new slParameter (paramR2,           "Pulse 2 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
 
-    addPluginParameter (new slParameter (paramPulseWidth3,  "Pulse 3 Width",  "Width", "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f));
-    addPluginParameter (new slParameter (paramWave3,        "Pulse 3 Wave",   "Wave",  "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f));
-    addPluginParameter (new slParameter (paramA3,           "Pulse 3 A",      "A",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramD3,           "Pulse 3 D",      "D",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
-    addPluginParameter (new slParameter (paramS3,           "Pulse 3 S",      "S",     "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f));
-    addPluginParameter (new slParameter (paramR3,           "Pulse 3 R",      "R",     "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f));
+    addPluginParameter (new slParameter (paramWave3,        "Pulse 3 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
+    addPluginParameter (new slParameter (paramPulseWidth3,  "Pulse 3 Duty Cycle", "D.C.",       "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new slParameter (paramA3,           "Pulse 3 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
+    addPluginParameter (new slParameter (paramD3,           "Pulse 3 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new slParameter (paramS3,           "Pulse 3 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
+    addPluginParameter (new slParameter (paramR3,           "Pulse 3 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     
-    addPluginParameter (new slParameter (paramVol,          "Volume",         "Volume",  "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f));
+    addPluginParameter (new slParameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f));
 }
 
 SIDAudioProcessor::~SIDAudioProcessor()
@@ -167,7 +226,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x06, (s << 4) | r);
                 
                 // set duty
-                int duty = parameterValue (paramPulseWidth1);
+                int duty = 4095 - parameterValue (paramPulseWidth1);
                 sid.write (0x02, duty & 0xFF);
                 sid.write (0x03, duty >> 8);
                 
@@ -204,7 +263,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x0D, (s << 4) | r);
                 
                 // set duty
-                int duty = parameterValue (paramPulseWidth2);
+                int duty = 4095 - parameterValue (paramPulseWidth2);
                 sid.write (0x09, duty & 0xFF);
                 sid.write (0x0A, duty >> 8);
                 
@@ -241,7 +300,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x14, (s << 4) | r);
                 
                 // set duty
-                int duty = parameterValue (paramPulseWidth3);
+                int duty = 4095 - parameterValue (paramPulseWidth3);
                 sid.write (0x10, duty & 0xFF);
                 sid.write (0x11, duty >> 8);
                 

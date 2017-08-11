@@ -16,11 +16,18 @@
 SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     : slAudioProcessorEditor (p, 60, 100), processor (p)
 {
+    using AP = SIDAudioProcessor;
+    
     logo = ImageFileFormat::loadFrom (BinaryData::logo_png, BinaryData::logo_pngSize);
     
     for (slParameter* pp : p.getPluginParameters())
     {
-        ParamComponent* c = pp->isOnOff() ? (ParamComponent*)new Switch (pp) : (ParamComponent*)new Knob (pp);
+        ParamComponent* c;
+        
+        if (pp->getUid() == AP::paramWave1 || pp->getUid() == AP::paramWave2 || pp->getUid() == AP::paramWave3)
+            c = new Select (pp);
+        else
+            c = pp->isOnOff() ? (ParamComponent*)new Switch (pp) : (ParamComponent*)new Knob (pp);
         
         addAndMakeVisible (c);
         controls.add (c);
