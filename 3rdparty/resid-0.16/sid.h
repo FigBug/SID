@@ -51,6 +51,8 @@ public:
   // Read/write registers.
   reg8 read(reg8 offset);
   void write(reg8 offset, reg8 value);
+    
+  int regToCutoff(reg16 val);
 
   // Read/write state.
   class State

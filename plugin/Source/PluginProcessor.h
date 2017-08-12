@@ -89,6 +89,11 @@ private:
     Component::SafePointer<SIDAudioProcessorEditor> editor;
     
     SID sid;
+    
+    uint8_t last15 = 0xff;
+    uint8_t last16 = 0xff;
+    uint8_t last17 = 0xff;
+    uint8_t last18 = 0xff;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SIDAudioProcessor)
 };

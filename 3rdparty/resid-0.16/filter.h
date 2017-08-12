@@ -140,6 +140,8 @@ public:
   void writeFC_HI(reg8);
   void writeRES_FILT(reg8);
   void writeMODE_VOL(reg8);
+    
+  int regToCutoff(reg16);
 
   // SID audio output (16 bits).
   sound_sample output();

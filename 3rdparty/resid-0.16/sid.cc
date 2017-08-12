@@ -251,6 +251,10 @@ void SID::write(reg8 offset, reg8 value)
   }
 }
 
+int SID::regToCutoff(reg16 val)
+{
+    return filter.regToCutoff(val);
+}
 
 // ----------------------------------------------------------------------------
 // Constructor.

@@ -16,6 +16,8 @@
 SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     : slAudioProcessorEditor (p, 60, 100), processor (p)
 {
+    additionalProgramming = "Dag Lem";
+    
     using AP = SIDAudioProcessor;
     
     logo = ImageFileFormat::loadFrom (BinaryData::logo_png, BinaryData::logo_pngSize);
@@ -37,7 +39,7 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     addAndMakeVisible (&scope);
     
-    setGridSize (18, 3);
+    setGridSize (17, 3);
     
     scope.setNumSamplesPerPixel (2);
     scope.setVerticalZoomFactor (3.0f);
@@ -51,11 +53,7 @@ SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 void SIDAudioProcessorEditor::paint (Graphics& g)
 {
     slAudioProcessorEditor::paint (g);
-    
-    g.setFont (Font (15.0f));
-    g.setColour (Colours::white);
-    g.drawText("Ver: " JucePlugin_VersionString, getLocalBounds().reduced (4), Justification::topRight);
-    
+        
     g.drawImageAt (logo, getWidth() / 2 - logo.getWidth() / 2, 0);
 }
 
@@ -68,19 +66,36 @@ void SIDAudioProcessorEditor::resized()
     Rectangle<int> r = getControlsArea();
     
     int idx = 0;
+    Rectangle<int> rc;
     for (slParameter* pp : processor.getPluginParameters())
     {
         if (idx < 30)
-            componentForId (pp->getUid())->setBounds (getGridArea (idx % 10, idx / 10));
+        {
+            if (idx % 10 == 8)
+            {
+                rc = getGridArea (idx % 10, idx / 10);
+                componentForId (pp->getUid())->setBounds (rc.removeFromTop (rc.getHeight() / 2).translated (0, 7));
+            }
+            else if (idx % 10 == 9)
+            {
+                componentForId (pp->getUid())->setBounds (rc);
+            }
+            else
+            {
+                componentForId (pp->getUid())->setBounds (getGridArea (idx % 10, idx / 10));
+            }
+        }
         else
-            componentForId (pp->getUid())->setBounds (getGridArea (15 + (idx - 30) % 3, (idx - 30) / 3));
+        {
+            componentForId (pp->getUid())->setBounds (getGridArea (14 + (idx - 30) % 3, (idx - 30) / 3));
+        }
 
         idx++;
     }
     
-    auto rc = getGridArea (0, 2);
-    componentForId (AP::paramWave3)->setBounds (rc.removeFromTop (rc.getHeight() / 2));
+    rc = getGridArea (0, 2);
+    componentForId (AP::paramWave3)->setBounds (rc.removeFromTop (rc.getHeight() / 2).translated (0, 7));
     componentForId (AP::paramOutput3)->setBounds (rc);
 
-    scope.setBounds (getGridArea (10, 0, 5, 3).reduced (5));
+    scope.setBounds (getGridArea (9, 0, 5, 3).reduced (5));
 }

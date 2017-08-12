@@ -62,6 +62,11 @@ String percentTextFunction (const slParameter& p, float userValue)
     return String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
 }
 
+String wholeNumberTextFunction (const slParameter& p, float userValue)
+{
+    return String::formatted ("%.0f", userValue);
+}
+
 String dutyCycleTextFunction (const slParameter&, float userValue)
 {
     return String::formatted ("%.0f%%", userValue / 4095.0 * 100);
@@ -151,14 +156,19 @@ String sTextFunction (const slParameter&, float userValue)
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
 {
+    auto cutoffTextFunction = [this] (const slParameter& p, float userValue) -> String
+    {
+        return String::formatted ("%d Hz", sid.regToCutoff (userValue));
+    };
+    
     addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f, waveTextFunction));
     addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
     addPluginParameter (new slParameter (paramA1,           "Pulse 1 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
     addPluginParameter (new slParameter (paramD1,           "Pulse 1 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     addPluginParameter (new slParameter (paramS1,           "Pulse 1 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
     addPluginParameter (new slParameter (paramR1,           "Pulse 1 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramTune1,        "Pulse 1 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f));
-    addPluginParameter (new slParameter (paramFine1,        "Pulse 1 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramTune1,        "Pulse 1 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new slParameter (paramFine1,        "Pulse 1 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
     addPluginParameter (new slParameter (paramSync1,        "Pulse 1 Sync",       "Sync 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
     addPluginParameter (new slParameter (paramRing1,        "Pulse 1 Ring",       "Ring 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
@@ -168,8 +178,8 @@ SIDAudioProcessor::SIDAudioProcessor()
     addPluginParameter (new slParameter (paramD2,           "Pulse 2 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     addPluginParameter (new slParameter (paramS2,           "Pulse 2 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
     addPluginParameter (new slParameter (paramR2,           "Pulse 2 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramTune2,        "Pulse 2 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f));
-    addPluginParameter (new slParameter (paramFine2,        "Pulse 2 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramTune2,        "Pulse 2 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new slParameter (paramFine2,        "Pulse 2 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
     addPluginParameter (new slParameter (paramSync2,        "Pulse 2 Sync",       "Sync 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
     addPluginParameter (new slParameter (paramRing2,        "Pulse 2 Ring",       "Ring 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
@@ -179,8 +189,8 @@ SIDAudioProcessor::SIDAudioProcessor()
     addPluginParameter (new slParameter (paramD3,           "Pulse 3 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     addPluginParameter (new slParameter (paramS3,           "Pulse 3 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
     addPluginParameter (new slParameter (paramR3,           "Pulse 3 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramTune3,        "Pulse 3 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f));
-    addPluginParameter (new slParameter (paramFine3,        "Pulse 3 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramTune3,        "Pulse 3 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new slParameter (paramFine3,        "Pulse 3 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
     addPluginParameter (new slParameter (paramSync3,        "Pulse 3 Sync",       "Sync 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
     addPluginParameter (new slParameter (paramRing3,        "Pulse 3 Ring",       "Ring 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
@@ -190,7 +200,7 @@ SIDAudioProcessor::SIDAudioProcessor()
     addPluginParameter (new slParameter (paramLP,           "Low Pass",           "LP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
     addPluginParameter (new slParameter (paramBP,           "Band Pass",          "BP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
     addPluginParameter (new slParameter (paramHP,           "High Pass",          "HP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new slParameter (paramCutoff,       "Cutoff",             "Cutoff",     "", 0.0f, 2047.0f, 1.0f, 1024.0f, 1.0f, percentTextFunction));
+    addPluginParameter (new slParameter (paramCutoff,       "Cutoff",             "Cutoff",     "Hz", 0.0f, 2047.0f, 1.0f, 1024.0f, 1.0f, cutoffTextFunction));
     addPluginParameter (new slParameter (paramReso,         "Resonance",          "Reso",       "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, percentTextFunction));
     addPluginParameter (new slParameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f, percentTextFunction));
     addPluginParameter (new slParameter (paramOutput3,      "Output 3",           "Output",     "", 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, onOffTextFunction));
@@ -239,21 +249,32 @@ void SIDAudioProcessor::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
 void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
 {
     // Update the filters
-    sid.write (0x15, parameterIntValue (paramCutoff) & 0x7);
-    sid.write (0x16, parameterIntValue (paramCutoff) >> 3);
+    uint8_t reg;
     
-    sid.write (0x17,
-               parameterIntValue (paramReso) << 4 |
-               parameterIntValue (paramFilter3) << 2 |
-               parameterIntValue (paramFilter2) << 1 |
-               parameterIntValue (paramFilter1) << 0);
+    reg = parameterIntValue (paramCutoff) & 0x7;
+    if (reg != last15)
+        sid.write (0x15, last15 = reg);
     
-    sid.write (0x18,
-               (parameterIntValue (paramOutput3) ? 0 : 1) << 7 |
-               parameterIntValue(paramHP) << 6 |
-               parameterIntValue(paramBP) << 5 |
-               parameterIntValue(paramLP) << 4 |
-               parameterIntValue (paramVol));
+    reg = parameterIntValue (paramCutoff) >> 3;
+    if (reg != last16)
+        sid.write (0x16, last16 = reg);
+    
+    reg = parameterIntValue (paramReso) << 4 |
+          parameterIntValue (paramFilter3) << 2 |
+          parameterIntValue (paramFilter2) << 1 |
+          parameterIntValue (paramFilter1) << 0;
+    
+    if (reg != last17)
+        sid.write (0x17, last17 = reg);
+    
+    reg = (parameterIntValue (paramOutput3) ? 0 : 1) << 7 |
+           parameterIntValue(paramHP) << 6 |
+           parameterIntValue(paramBP) << 5 |
+           parameterIntValue(paramLP) << 4 |
+           parameterIntValue (paramVol);
+    
+    if (reg != last18)
+        sid.write (0x18, last18 = reg);
     
     int done = 0;
     runUntil (done, buffer, 0);
