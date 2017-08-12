@@ -17,6 +17,10 @@ const char* SIDAudioProcessor::paramA1          = "a1";
 const char* SIDAudioProcessor::paramD1          = "d1";
 const char* SIDAudioProcessor::paramS1          = "s1";
 const char* SIDAudioProcessor::paramR1          = "r1";
+const char* SIDAudioProcessor::paramTune1       = "tune1";
+const char* SIDAudioProcessor::paramFine1       = "fine1";
+const char* SIDAudioProcessor::paramSync1       = "sync1";
+const char* SIDAudioProcessor::paramRing1       = "ring1";
 
 const char* SIDAudioProcessor::paramPulseWidth2 = "pw2";
 const char* SIDAudioProcessor::paramWave2       = "w2";
@@ -24,6 +28,10 @@ const char* SIDAudioProcessor::paramA2          = "a2";
 const char* SIDAudioProcessor::paramD2          = "d2";
 const char* SIDAudioProcessor::paramS2          = "s2";
 const char* SIDAudioProcessor::paramR2          = "r2";
+const char* SIDAudioProcessor::paramTune2       = "tune2";
+const char* SIDAudioProcessor::paramFine2       = "fine2";
+const char* SIDAudioProcessor::paramSync2       = "sync2";
+const char* SIDAudioProcessor::paramRing2       = "ring2";
 
 const char* SIDAudioProcessor::paramPulseWidth3 = "pw3";
 const char* SIDAudioProcessor::paramWave3       = "w3";
@@ -31,6 +39,10 @@ const char* SIDAudioProcessor::paramA3          = "a3";
 const char* SIDAudioProcessor::paramD3          = "d3";
 const char* SIDAudioProcessor::paramS3          = "s3";
 const char* SIDAudioProcessor::paramR3          = "r3";
+const char* SIDAudioProcessor::paramTune3       = "tune3";
+const char* SIDAudioProcessor::paramFine3       = "fine3";
+const char* SIDAudioProcessor::paramSync3       = "sync3";
+const char* SIDAudioProcessor::paramRing3       = "ring3";
 
 const char* SIDAudioProcessor::paramCutoff      = "cutoff";
 const char* SIDAudioProcessor::paramReso        = "reso";
@@ -42,6 +54,7 @@ const char* SIDAudioProcessor::paramBP          = "bandpass";
 const char* SIDAudioProcessor::paramHP          = "highpass";
 
 const char* SIDAudioProcessor::paramVol         = "vol";
+const char* SIDAudioProcessor::paramOutput3     = "output3";
 
 //==============================================================================
 String percentTextFunction (const slParameter& p, float userValue)
@@ -139,26 +152,38 @@ String sTextFunction (const slParameter&, float userValue)
 SIDAudioProcessor::SIDAudioProcessor()
 {
     addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Duty Cycle", "D.C.",       "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
     addPluginParameter (new slParameter (paramA1,           "Pulse 1 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
     addPluginParameter (new slParameter (paramD1,           "Pulse 1 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     addPluginParameter (new slParameter (paramS1,           "Pulse 1 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
     addPluginParameter (new slParameter (paramR1,           "Pulse 1 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new slParameter (paramTune1,        "Pulse 1 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramFine1,        "Pulse 1 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramSync1,        "Pulse 1 Sync",       "Sync 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new slParameter (paramRing1,        "Pulse 1 Ring",       "Ring 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
     addPluginParameter (new slParameter (paramWave2,        "Pulse 2 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new slParameter (paramPulseWidth2,  "Pulse 2 Duty Cycle", "D.C.",       "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new slParameter (paramPulseWidth2,  "Pulse 2 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
     addPluginParameter (new slParameter (paramA2,           "Pulse 2 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
     addPluginParameter (new slParameter (paramD2,           "Pulse 2 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     addPluginParameter (new slParameter (paramS2,           "Pulse 2 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
     addPluginParameter (new slParameter (paramR2,           "Pulse 2 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new slParameter (paramTune2,        "Pulse 2 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramFine2,        "Pulse 2 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramSync2,        "Pulse 2 Sync",       "Sync 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new slParameter (paramRing2,        "Pulse 2 Ring",       "Ring 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
     addPluginParameter (new slParameter (paramWave3,        "Pulse 3 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new slParameter (paramPulseWidth3,  "Pulse 3 Duty Cycle", "D.C.",       "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new slParameter (paramPulseWidth3,  "Pulse 3 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
     addPluginParameter (new slParameter (paramA3,           "Pulse 3 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
     addPluginParameter (new slParameter (paramD3,           "Pulse 3 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
     addPluginParameter (new slParameter (paramS3,           "Pulse 3 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
     addPluginParameter (new slParameter (paramR3,           "Pulse 3 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    
+    addPluginParameter (new slParameter (paramTune3,        "Pulse 3 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramFine3,        "Pulse 3 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f));
+    addPluginParameter (new slParameter (paramSync3,        "Pulse 3 Sync",       "Sync 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new slParameter (paramRing3,        "Pulse 3 Ring",       "Ring 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+
     addPluginParameter (new slParameter (paramFilter1,      "Filter Ch 1",        "Ch 1",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
     addPluginParameter (new slParameter (paramFilter2,      "Filter Ch 2",        "Ch 2",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
     addPluginParameter (new slParameter (paramFilter3,      "Filter Ch 3",        "Ch 3",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
@@ -168,6 +193,7 @@ SIDAudioProcessor::SIDAudioProcessor()
     addPluginParameter (new slParameter (paramCutoff,       "Cutoff",             "Cutoff",     "", 0.0f, 2047.0f, 1.0f, 1024.0f, 1.0f, percentTextFunction));
     addPluginParameter (new slParameter (paramReso,         "Resonance",          "Reso",       "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, percentTextFunction));
     addPluginParameter (new slParameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f, percentTextFunction));
+    addPluginParameter (new slParameter (paramOutput3,      "Output 3",           "Output",     "", 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, onOffTextFunction));
 }
 
 SIDAudioProcessor::~SIDAudioProcessor()
@@ -223,6 +249,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                parameterIntValue (paramFilter1) << 0);
     
     sid.write (0x18,
+               (parameterIntValue (paramOutput3) ? 0 : 1) << 7 |
                parameterIntValue(paramHP) << 6 |
                parameterIntValue(paramBP) << 5 |
                parameterIntValue(paramLP) << 4 |
@@ -274,7 +301,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x03, duty >> 8);
                 
                 // set freq
-                float freq = MidiMessage::getMidiNoteInHertz (curNote);
+                float freq = getMidiNoteInHertz (curNote + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f);
                 int period = freq * (14 * pow (2, 24)) / 14318182;
                 
                 sid.write (0x00, period & 0xFF);
@@ -282,8 +309,10 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 
                 // set wave on
                 uint8_t waveType = parameterIntValue (paramWave1);
+                uint8_t sync = parameterValue (paramSync1) ? 0x02 : 0x00;
+                uint8_t ring = parameterValue (paramRing1) ? 0x04 : 0x00;
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-                sid.write (0x04, (wave << 4) | 0x01);
+                sid.write (0x04, (wave << 4) | sync | ring | 0x01);
             }
             else
             {
@@ -311,7 +340,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x0A, duty >> 8);
                 
                 // set freq
-                float freq = MidiMessage::getMidiNoteInHertz (curNote);
+                float freq = getMidiNoteInHertz (curNote + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f);
                 int period = freq * (14 * pow (2, 24)) / 14318182;
                 
                 sid.write (0x07, period & 0xFF);
@@ -320,7 +349,9 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 // set wave on
                 uint8_t waveType = parameterIntValue (paramWave2);
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-                sid.write (0x0B, (wave << 4) | 0x01);
+                uint8_t sync = parameterValue (paramSync2) ? 0x02 : 0x00;
+                uint8_t ring = parameterValue (paramRing2) ? 0x04 : 0x00;
+                sid.write (0x0B, (wave << 4) | sync | ring | 0x01);
             }
             else
             {
@@ -348,7 +379,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x11, duty >> 8);
                 
                 // set freq
-                float freq = MidiMessage::getMidiNoteInHertz (curNote);
+                float freq = getMidiNoteInHertz (curNote + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f);
                 int period = freq * (14 * pow (2, 24)) / 14318182;
                 
                 sid.write (0x0E, period & 0xFF);
@@ -357,7 +388,9 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 // set wave on
                 uint8_t waveType = parameterIntValue (paramWave3);
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-                sid.write (0x12, (wave << 4) | 0x01);
+                uint8_t sync = parameterValue (paramSync3) ? 0x02 : 0x00;
+                uint8_t ring = parameterValue (paramRing3) ? 0x04 : 0x00;
+                sid.write (0x12, (wave << 4) | sync | ring | 0x01);
             }
             else
             {

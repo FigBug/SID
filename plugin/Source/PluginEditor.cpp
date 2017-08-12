@@ -24,7 +24,9 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     {
         ParamComponent* c;
         
-        if (pp->getUid() == AP::paramWave1 || pp->getUid() == AP::paramWave2 || pp->getUid() == AP::paramWave3)
+        if (pp->getUid().contains ("tune") || pp->getUid().contains ("fine"))
+            c = new Knob (pp, true);
+        else if (pp->getUid() == AP::paramWave1 || pp->getUid() == AP::paramWave2 || pp->getUid() == AP::paramWave3)
             c = new Select (pp);
         else
             c = pp->isOnOff() ? (ParamComponent*)new Switch (pp) : (ParamComponent*)new Knob (pp);
@@ -35,7 +37,7 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     addAndMakeVisible (&scope);
     
-    setGridSize (13, 3);
+    setGridSize (18, 3);
     
     scope.setNumSamplesPerPixel (2);
     scope.setVerticalZoomFactor (3.0f);
@@ -68,13 +70,17 @@ void SIDAudioProcessorEditor::resized()
     int idx = 0;
     for (slParameter* pp : processor.getPluginParameters())
     {
-        if (idx < 18)
-            componentForId (pp->getUid())->setBounds (getGridArea (idx % 6, idx / 6));
+        if (idx < 30)
+            componentForId (pp->getUid())->setBounds (getGridArea (idx % 10, idx / 10));
         else
-            componentForId (pp->getUid())->setBounds (getGridArea (10 + (idx - 18) % 3, (idx - 18) / 3));
+            componentForId (pp->getUid())->setBounds (getGridArea (15 + (idx - 30) % 3, (idx - 30) / 3));
 
         idx++;
     }
+    
+    auto rc = getGridArea (0, 2);
+    componentForId (AP::paramWave3)->setBounds (rc.removeFromTop (rc.getHeight() / 2));
+    componentForId (AP::paramOutput3)->setBounds (rc);
 
-    scope.setBounds (getGridArea (6, 0, 4, 3).reduced (5));
+    scope.setBounds (getGridArea (10, 0, 5, 3).reduced (5));
 }

@@ -43,18 +43,30 @@ public:
     static const char* paramD1;
     static const char* paramS1;
     static const char* paramR1;
+    static const char* paramTune1;
+    static const char* paramFine1;
+    static const char* paramSync1;
+    static const char* paramRing1;
     static const char* paramWave2;
     static const char* paramPulseWidth2;
     static const char* paramA2;
     static const char* paramD2;
     static const char* paramS2;
     static const char* paramR2;
+    static const char* paramTune2;
+    static const char* paramFine2;
+    static const char* paramSync2;
+    static const char* paramRing2;
     static const char* paramWave3;
     static const char* paramPulseWidth3;
     static const char* paramA3;
     static const char* paramD3;
     static const char* paramS3;
     static const char* paramR3;
+    static const char* paramTune3;
+    static const char* paramFine3;
+    static const char* paramSync3;
+    static const char* paramRing3;
     static const char* paramCutoff;
     static const char* paramReso;
     static const char* paramFilter1;
@@ -64,6 +76,7 @@ public:
     static const char* paramBP;
     static const char* paramHP;
     static const char* paramVol;
+    static const char* paramOutput3;
 
 private:
     void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
