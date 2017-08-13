@@ -83,6 +83,7 @@ private:
     
     int lastNote = -1;
     int velocity = 0;
+    float pitchBend = 0;
     Array<int> noteQueue;
     
     LinearSmoothedValue<float> outputSmoothed;

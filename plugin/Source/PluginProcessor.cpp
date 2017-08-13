@@ -281,6 +281,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
     
     int pos = 0;
     MidiMessage msg;
+    bool updateBend = false;
     MidiBuffer::Iterator itr (midi);
     while (itr.getNextEvent (msg, pos))
     {
@@ -298,9 +299,42 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
         else if (msg.isAllNotesOff())
         {
             noteQueue.clear();
+            pitchBend = 0;
+        }
+        else if (msg.isPitchWheel())
+        {
+            updateBend = true;
+            pitchBend = (msg.getPitchWheelValue() - 8192) / 8192.0 * 2;
         }
         
-        const int curNote = noteQueue.size() > 0 ? noteQueue.getFirst() : -1;
+        const int curNote = noteQueue.size() > 0 ? noteQueue.getLast() : -1;
+        
+        if (updateBend)
+        {
+            float freq;
+            int period;
+            
+            // set freq 1
+            freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f);
+            period = freq * (14 * pow (2, 24)) / 14318182;
+            
+            sid.write (0x00, period & 0xFF);
+            sid.write (0x01, period >> 8);
+            
+            // set freq
+            freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f);
+            period = freq * (14 * pow (2, 24)) / 14318182;
+            
+            sid.write (0x07, period & 0xFF);
+            sid.write (0x08, period >> 8);
+            
+            // set freq 3
+            freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f);
+            period = freq * (14 * pow (2, 24)) / 14318182;
+            
+            sid.write (0x0E, period & 0xFF);
+            sid.write (0x0F, period >> 8);
+        }
         
         if (curNote != lastNote)
         {
@@ -322,7 +356,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x03, duty >> 8);
                 
                 // set freq
-                float freq = getMidiNoteInHertz (curNote + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f);
+                float freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f);
                 int period = freq * (14 * pow (2, 24)) / 14318182;
                 
                 sid.write (0x00, period & 0xFF);
@@ -361,7 +395,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x0A, duty >> 8);
                 
                 // set freq
-                float freq = getMidiNoteInHertz (curNote + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f);
+                float freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f);
                 int period = freq * (14 * pow (2, 24)) / 14318182;
                 
                 sid.write (0x07, period & 0xFF);
@@ -400,7 +434,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
                 sid.write (0x11, duty >> 8);
                 
                 // set freq
-                float freq = getMidiNoteInHertz (curNote + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f);
+                float freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f);
                 int period = freq * (14 * pow (2, 24)) / 14318182;
                 
                 sid.write (0x0E, period & 0xFF);
