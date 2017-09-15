@@ -78,6 +78,12 @@ public:
     static const char* paramVol;
     static const char* paramOutput3;
 
+    void setEditor (SIDAudioProcessorEditor* editor_)
+    {
+        ScopedLock sl (editorLock);
+        editor = editor_;
+    }
+
 private:
     void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
     
@@ -87,7 +93,8 @@ private:
     Array<int> noteQueue;
     
     LinearSmoothedValue<float> outputSmoothed;
-    Component::SafePointer<SIDAudioProcessorEditor> editor;
+    CriticalSection editorLock;
+    SIDAudioProcessorEditor* editor = nullptr;
     
     SID sid;
     

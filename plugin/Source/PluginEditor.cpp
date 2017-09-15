@@ -43,10 +43,13 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     scope.setNumSamplesPerPixel (2);
     scope.setVerticalZoomFactor (3.0f);
+
+    p.setEditor (this);
 }
 
 SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 {
+    p.setEditor (nullptr);
 }
 
 //==============================================================================

@@ -463,6 +463,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
     
     float* data = buffer.getWritePointer (0);
     
+    ScopedLock sl (editorLock);
     if (editor)
         editor->scope.addSamples (data, buffer.getNumSamples());
 }
