@@ -54,9 +54,9 @@ enum sampling_method { SAMPLE_FAST, SAMPLE_INTERPOLATE,
 extern "C"
 {
 #ifndef __VERSION_CC__
-extern const char* resid_version_string;
+//extern const char* resid_version_string;
 #else
-const char* resid_version_string = VERSION;
+//const char* resid_version_string = VERSION;
 #endif
 }
 
