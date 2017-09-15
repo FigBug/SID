@@ -49,7 +49,7 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
 
 SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 {
-    p.setEditor (nullptr);
+    processor.setEditor (nullptr);
 }
 
 //==============================================================================
