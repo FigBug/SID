@@ -231,10 +231,10 @@ void SIDAudioProcessor::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
     while (todo > 0)
     {
         cycle_count clock = 64;
-        while (clock)
+        while (clock && todo > 0)
         {
             short out[1024];
-            int count = sid.clock (clock, out, 1024);
+            int count = sid.clock (clock, out, jmin (todo, 1024));
             
             float* data = buffer.getWritePointer (0, done);
             for (int i = 0; i < count; i++)
