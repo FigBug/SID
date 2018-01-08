@@ -62,7 +62,7 @@ String percentTextFunction (const slParameter& p, float userValue)
     return String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
 }
 
-String wholeNumberTextFunction (const slParameter& p, float userValue)
+String wholeNumberTextFunction (const slParameter&, float userValue)
 {
     return String::formatted ("%.0f", userValue);
 }
@@ -156,9 +156,9 @@ String sTextFunction (const slParameter&, float userValue)
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
 {
-    auto cutoffTextFunction = [this] (const slParameter& p, float userValue) -> String
+    auto cutoffTextFunction = [this] (const slParameter&, float userValue) -> String
     {
-        return String::formatted ("%d Hz", sid.regToCutoff (userValue));
+        return String::formatted ("%d Hz", sid.regToCutoff (reg16 (userValue)));
     };
     
     addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f, waveTextFunction));
@@ -211,7 +211,7 @@ SIDAudioProcessor::~SIDAudioProcessor()
 }
 
 //==============================================================================
-void SIDAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void SIDAudioProcessor::prepareToPlay (double sampleRate, int)
 {
     outputSmoothed.reset (sampleRate, 0.05);
     
@@ -255,23 +255,23 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
     if (reg != last15)
         sid.write (0x15, last15 = reg);
     
-    reg = parameterIntValue (paramCutoff) >> 3;
+    reg = uint8_t (parameterIntValue (paramCutoff) >> 3);
     if (reg != last16)
         sid.write (0x16, last16 = reg);
     
-    reg = parameterIntValue (paramReso) << 4 |
-          parameterIntValue (paramFilter3) << 2 |
-          parameterIntValue (paramFilter2) << 1 |
-          parameterIntValue (paramFilter1) << 0;
+    reg = uint8_t (parameterIntValue (paramReso) << 4 |
+                   parameterIntValue (paramFilter3) << 2 |
+                   parameterIntValue (paramFilter2) << 1 |
+                   parameterIntValue (paramFilter1) << 0);
     
     if (reg != last17)
         sid.write (0x17, last17 = reg);
     
-    reg = (parameterIntValue (paramOutput3) ? 0 : 1) << 7 |
-           parameterIntValue(paramHP) << 6 |
-           parameterIntValue(paramBP) << 5 |
-           parameterIntValue(paramLP) << 4 |
-           parameterIntValue (paramVol);
+    reg = uint8_t ((parameterIntValue (paramOutput3) ? 0 : 1) << 7 |
+                    parameterIntValue(paramHP) << 6 |
+                    parameterIntValue(paramBP) << 5 |
+                    parameterIntValue(paramLP) << 4 |
+                    parameterIntValue (paramVol));
     
     if (reg != last18)
         sid.write (0x18, last18 = reg);
@@ -304,7 +304,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
         else if (msg.isPitchWheel())
         {
             updateBend = true;
-            pitchBend = (msg.getPitchWheelValue() - 8192) / 8192.0 * 2;
+            pitchBend = (msg.getPitchWheelValue() - 8192) / 8192.0f * 2;
         }
         
         const int curNote = noteQueue.size() > 0 ? noteQueue.getLast() : -1;
@@ -315,22 +315,22 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
             int period;
             
             // set freq 1
-            freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f);
-            period = freq * (14 * pow (2, 24)) / 14318182;
+            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f));
+            period = int (freq * (14 * std::pow (2, 24)) / 14318182);
             
             sid.write (0x00, period & 0xFF);
             sid.write (0x01, period >> 8);
             
             // set freq
-            freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f);
-            period = freq * (14 * pow (2, 24)) / 14318182;
+            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f));
+            period = int (freq * (14 * pow (2, 24)) / 14318182);
             
             sid.write (0x07, period & 0xFF);
             sid.write (0x08, period >> 8);
             
             // set freq 3
-            freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f);
-            period = freq * (14 * pow (2, 24)) / 14318182;
+            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f));
+            period = int (freq * (14 * std::pow (2, 24)) / 14318182);
             
             sid.write (0x0E, period & 0xFF);
             sid.write (0x0F, period >> 8);
@@ -342,28 +342,28 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
             if (curNote != -1 && parameterIntValue (paramWave1))
             {
                 // set adsr
-                int a = parameterValue (paramA1);
-                int d = parameterValue (paramD1);
-                int s = parameterValue (paramS1);
-                int r = parameterValue (paramR1);
+                int a = parameterIntValue (paramA1);
+                int d = parameterIntValue (paramD1);
+                int s = parameterIntValue (paramS1);
+                int r = parameterIntValue (paramR1);
                 
                 sid.write (0x05, (a << 4) | d);
                 sid.write (0x06, (s << 4) | r);
                 
                 // set duty
-                int duty = 4095 - parameterValue (paramPulseWidth1);
+                int duty = 4095 - parameterIntValue (paramPulseWidth1);
                 sid.write (0x02, duty & 0xFF);
                 sid.write (0x03, duty >> 8);
                 
                 // set freq
-                float freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f);
-                int period = freq * (14 * pow (2, 24)) / 14318182;
+                float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f));
+                int period = int (freq * (14 * pow (2, 24)) / 14318182);
                 
                 sid.write (0x00, period & 0xFF);
                 sid.write (0x01, period >> 8);
                 
                 // set wave on
-                uint8_t waveType = parameterIntValue (paramWave1);
+                uint8_t waveType = uint8_t (parameterIntValue (paramWave1));
                 uint8_t sync = parameterValue (paramSync1) ? 0x02 : 0x00;
                 uint8_t ring = parameterValue (paramRing1) ? 0x04 : 0x00;
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
@@ -372,7 +372,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
             else
             {
                 // set wave off
-                uint8_t waveType = parameterIntValue (paramWave1);
+                uint8_t waveType = uint8_t (parameterIntValue (paramWave1));
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
                 sid.write (0x04, (wave << 4) | 0x00);
             }
@@ -381,37 +381,37 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
             if (curNote != -1 && parameterIntValue (paramWave2))
             {
                 // set adsr
-                int a = parameterValue (paramA2);
-                int d = parameterValue (paramD2);
-                int s = parameterValue (paramS2);
-                int r = parameterValue (paramR2);
+                int a = parameterIntValue (paramA2);
+                int d = parameterIntValue (paramD2);
+                int s = parameterIntValue (paramS2);
+                int r = parameterIntValue (paramR2);
                 
                 sid.write (0x0C, (a << 4) | d);
                 sid.write (0x0D, (s << 4) | r);
                 
                 // set duty
-                int duty = 4095 - parameterValue (paramPulseWidth2);
+                int duty = 4095 - parameterIntValue (paramPulseWidth2);
                 sid.write (0x09, duty & 0xFF);
                 sid.write (0x0A, duty >> 8);
                 
                 // set freq
-                float freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f);
-                int period = freq * (14 * pow (2, 24)) / 14318182;
+                float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f));
+                int period = int (freq * (14 * pow (2, 24)) / 14318182);
                 
                 sid.write (0x07, period & 0xFF);
                 sid.write (0x08, period >> 8);
                 
                 // set wave on
-                uint8_t waveType = parameterIntValue (paramWave2);
+                uint8_t waveType = uint8_t (parameterIntValue (paramWave2));
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-                uint8_t sync = parameterValue (paramSync2) ? 0x02 : 0x00;
-                uint8_t ring = parameterValue (paramRing2) ? 0x04 : 0x00;
+                uint8_t sync = parameterIntValue (paramSync2) ? 0x02 : 0x00;
+                uint8_t ring = parameterIntValue (paramRing2) ? 0x04 : 0x00;
                 sid.write (0x0B, (wave << 4) | sync | ring | 0x01);
             }
             else
             {
                 // set wave off
-                uint8_t waveType = parameterIntValue (paramWave2);
+                uint8_t waveType = uint8_t (parameterIntValue (paramWave2));
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
                 sid.write (0x0B, (wave << 4) | 0x00);
             }
@@ -420,37 +420,37 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
             if (curNote != -1 && parameterIntValue (paramWave3))
             {
                 // set adsr
-                int a = parameterValue (paramA3);
-                int d = parameterValue (paramD3);
-                int s = parameterValue (paramS3);
-                int r = parameterValue (paramR3);
+                int a = parameterIntValue (paramA3);
+                int d = parameterIntValue (paramD3);
+                int s = parameterIntValue (paramS3);
+                int r = parameterIntValue (paramR3);
                 
                 sid.write (0x13, (a << 4) | d);
                 sid.write (0x14, (s << 4) | r);
                 
                 // set duty
-                int duty = 4095 - parameterValue (paramPulseWidth3);
+                int duty = 4095 - parameterIntValue (paramPulseWidth3);
                 sid.write (0x10, duty & 0xFF);
                 sid.write (0x11, duty >> 8);
                 
                 // set freq
-                float freq = getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f);
-                int period = freq * (14 * pow (2, 24)) / 14318182;
+                float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f));
+                int period = int (freq * (14 * pow (2, 24)) / 14318182);
                 
                 sid.write (0x0E, period & 0xFF);
                 sid.write (0x0F, period >> 8);
                 
                 // set wave on
-                uint8_t waveType = parameterIntValue (paramWave3);
+                uint8_t waveType = uint8_t (parameterIntValue (paramWave3));
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-                uint8_t sync = parameterValue (paramSync3) ? 0x02 : 0x00;
-                uint8_t ring = parameterValue (paramRing3) ? 0x04 : 0x00;
+                uint8_t sync = parameterIntValue (paramSync3) ? 0x02 : 0x00;
+                uint8_t ring = parameterIntValue (paramRing3) ? 0x04 : 0x00;
                 sid.write (0x12, (wave << 4) | sync | ring | 0x01);
             }
             else
             {
                 // set wave off
-                uint8_t waveType = parameterIntValue (paramWave3);
+                uint8_t waveType = uint8_t (parameterIntValue (paramWave3));
                 uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
                 sid.write (0x12, (wave << 4) | 0x00);
             }
