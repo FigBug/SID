@@ -12,9 +12,11 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
 
+using namespace gin;
+
 //==============================================================================
 SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
-    : slAudioProcessorEditor (p, 60, 100), processor (p)
+  : GinAudioProcessorEditor (p, 60, 100), processor (p)
 {
     additionalProgramming = "Dag Lem";
     
@@ -22,7 +24,7 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     logo = ImageFileFormat::loadFrom (BinaryData::logo_png, BinaryData::logo_pngSize);
     
-    for (slParameter* pp : p.getPluginParameters())
+    for (Parameter* pp : p.getPluginParameters())
     {
         ParamComponent* c;
         
@@ -55,7 +57,7 @@ SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 //==============================================================================
 void SIDAudioProcessorEditor::paint (Graphics& g)
 {
-    slAudioProcessorEditor::paint (g);
+    GinAudioProcessorEditor::paint (g);
         
     g.drawImageAt (logo, getWidth() / 2 - logo.getWidth() / 2, 0);
 }
@@ -64,13 +66,13 @@ void SIDAudioProcessorEditor::resized()
 {
     using AP = SIDAudioProcessor;
     
-    slAudioProcessorEditor::resized();
+    GinAudioProcessorEditor::resized();
     
     Rectangle<int> r = getControlsArea();
     
     int idx = 0;
     Rectangle<int> rc;
-    for (slParameter* pp : processor.getPluginParameters())
+    for (Parameter* pp : processor.getPluginParameters())
     {
         if (idx < 30)
         {

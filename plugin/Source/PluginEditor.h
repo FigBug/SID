@@ -12,12 +12,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "slCommon.h"
 
 //==============================================================================
 /**
 */
-class SIDAudioProcessorEditor  : public slAudioProcessorEditor
+class SIDAudioProcessorEditor  : public gin::GinAudioProcessorEditor
 {
 public:
     SIDAudioProcessorEditor (SIDAudioProcessor&);

@@ -11,6 +11,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+using namespace gin;
+
 const char* SIDAudioProcessor::paramPulseWidth1 = "pw1";
 const char* SIDAudioProcessor::paramWave1       = "w1";
 const char* SIDAudioProcessor::paramA1          = "a1";
@@ -57,37 +59,37 @@ const char* SIDAudioProcessor::paramVol         = "vol";
 const char* SIDAudioProcessor::paramOutput3     = "output3";
 
 //==============================================================================
-String percentTextFunction (const slParameter& p, float userValue)
+String percentTextFunction (const Parameter& p, float userValue)
 {
     return String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
 }
 
-String wholeNumberTextFunction (const slParameter&, float userValue)
+String wholeNumberTextFunction (const Parameter&, float userValue)
 {
     return String::formatted ("%.0f", userValue);
 }
 
-String dutyCycleTextFunction (const slParameter&, float userValue)
+String dutyCycleTextFunction (const Parameter&, float userValue)
 {
     return String::formatted ("%.0f%%", userValue / 4095.0 * 100);
 }
 
-String typeTextFunction (const slParameter&, float userValue)
+String typeTextFunction (const Parameter&, float userValue)
 {
     return userValue > 0.0f ? "White" : "Periodic";
 }
 
-String filterTextFunction (const slParameter&, float userValue)
+String filterTextFunction (const Parameter&, float userValue)
 {
     return userValue > 0.0f ? "Filter" : "Bypass";
 }
 
-String onOffTextFunction (const slParameter&, float userValue)
+String onOffTextFunction (const Parameter&, float userValue)
 {
     return userValue > 0.0f ? "On" : "Off";
 }
 
-String waveTextFunction (const slParameter&, float userValue)
+String waveTextFunction (const Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -100,7 +102,7 @@ String waveTextFunction (const slParameter&, float userValue)
     return "";
 }
 
-String aTextFunction (const slParameter&, float userValue)
+String aTextFunction (const Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -124,7 +126,7 @@ String aTextFunction (const slParameter&, float userValue)
     }
 }
 
-String drTextFunction (const slParameter&, float userValue)
+String drTextFunction (const Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -148,7 +150,7 @@ String drTextFunction (const slParameter&, float userValue)
     }
 }
 
-String sTextFunction (const slParameter&, float userValue)
+String sTextFunction (const Parameter&, float userValue)
 {
     return String::formatted ("%.0f%%", userValue / 15 * 100);
 }
@@ -156,54 +158,54 @@ String sTextFunction (const slParameter&, float userValue)
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
 {
-    auto cutoffTextFunction = [this] (const slParameter&, float userValue) -> String
+    auto cutoffTextFunction = [this] (const Parameter&, float userValue) -> String
     {
         return String::formatted ("%d Hz", sid.regToCutoff (reg16 (userValue)));
     };
     
-    addPluginParameter (new slParameter (paramWave1,        "Pulse 1 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new slParameter (paramPulseWidth1,  "Pulse 1 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
-    addPluginParameter (new slParameter (paramA1,           "Pulse 1 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
-    addPluginParameter (new slParameter (paramD1,           "Pulse 1 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramS1,           "Pulse 1 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
-    addPluginParameter (new slParameter (paramR1,           "Pulse 1 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramTune1,        "Pulse 1 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new slParameter (paramFine1,        "Pulse 1 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new slParameter (paramSync1,        "Pulse 1 Sync",       "Sync 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new slParameter (paramRing1,        "Pulse 1 Ring",       "Ring 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramWave1,        "Pulse 1 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f, waveTextFunction));
+    addPluginParameter (new Parameter (paramPulseWidth1,  "Pulse 1 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new Parameter (paramA1,           "Pulse 1 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
+    addPluginParameter (new Parameter (paramD1,           "Pulse 1 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new Parameter (paramS1,           "Pulse 1 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
+    addPluginParameter (new Parameter (paramR1,           "Pulse 1 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new Parameter (paramTune1,        "Pulse 1 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new Parameter (paramFine1,        "Pulse 1 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new Parameter (paramSync1,        "Pulse 1 Sync",       "Sync 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramRing1,        "Pulse 1 Ring",       "Ring 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
-    addPluginParameter (new slParameter (paramWave2,        "Pulse 2 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new slParameter (paramPulseWidth2,  "Pulse 2 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
-    addPluginParameter (new slParameter (paramA2,           "Pulse 2 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
-    addPluginParameter (new slParameter (paramD2,           "Pulse 2 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramS2,           "Pulse 2 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
-    addPluginParameter (new slParameter (paramR2,           "Pulse 2 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramTune2,        "Pulse 2 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new slParameter (paramFine2,        "Pulse 2 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new slParameter (paramSync2,        "Pulse 2 Sync",       "Sync 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new slParameter (paramRing2,        "Pulse 2 Ring",       "Ring 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramWave2,        "Pulse 2 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
+    addPluginParameter (new Parameter (paramPulseWidth2,  "Pulse 2 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new Parameter (paramA2,           "Pulse 2 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
+    addPluginParameter (new Parameter (paramD2,           "Pulse 2 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new Parameter (paramS2,           "Pulse 2 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
+    addPluginParameter (new Parameter (paramR2,           "Pulse 2 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new Parameter (paramTune2,        "Pulse 2 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new Parameter (paramFine2,        "Pulse 2 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new Parameter (paramSync2,        "Pulse 2 Sync",       "Sync 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramRing2,        "Pulse 2 Ring",       "Ring 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
-    addPluginParameter (new slParameter (paramWave3,        "Pulse 3 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new slParameter (paramPulseWidth3,  "Pulse 3 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
-    addPluginParameter (new slParameter (paramA3,           "Pulse 3 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
-    addPluginParameter (new slParameter (paramD3,           "Pulse 3 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramS3,           "Pulse 3 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
-    addPluginParameter (new slParameter (paramR3,           "Pulse 3 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new slParameter (paramTune3,        "Pulse 3 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new slParameter (paramFine3,        "Pulse 3 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new slParameter (paramSync3,        "Pulse 3 Sync",       "Sync 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new slParameter (paramRing3,        "Pulse 3 Ring",       "Ring 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramWave3,        "Pulse 3 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
+    addPluginParameter (new Parameter (paramPulseWidth3,  "Pulse 3 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
+    addPluginParameter (new Parameter (paramA3,           "Pulse 3 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
+    addPluginParameter (new Parameter (paramD3,           "Pulse 3 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new Parameter (paramS3,           "Pulse 3 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
+    addPluginParameter (new Parameter (paramR3,           "Pulse 3 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
+    addPluginParameter (new Parameter (paramTune3,        "Pulse 3 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new Parameter (paramFine3,        "Pulse 3 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
+    addPluginParameter (new Parameter (paramSync3,        "Pulse 3 Sync",       "Sync 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramRing3,        "Pulse 3 Ring",       "Ring 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
 
-    addPluginParameter (new slParameter (paramFilter1,      "Filter Ch 1",        "Ch 1",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
-    addPluginParameter (new slParameter (paramFilter2,      "Filter Ch 2",        "Ch 2",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
-    addPluginParameter (new slParameter (paramFilter3,      "Filter Ch 3",        "Ch 3",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
-    addPluginParameter (new slParameter (paramLP,           "Low Pass",           "LP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new slParameter (paramBP,           "Band Pass",          "BP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new slParameter (paramHP,           "High Pass",          "HP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new slParameter (paramCutoff,       "Cutoff",             "Cutoff",     "Hz", 0.0f, 2047.0f, 1.0f, 1024.0f, 1.0f, cutoffTextFunction));
-    addPluginParameter (new slParameter (paramReso,         "Resonance",          "Reso",       "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, percentTextFunction));
-    addPluginParameter (new slParameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f, percentTextFunction));
-    addPluginParameter (new slParameter (paramOutput3,      "Output 3",           "Output",     "", 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramFilter1,      "Filter Ch 1",        "Ch 1",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
+    addPluginParameter (new Parameter (paramFilter2,      "Filter Ch 2",        "Ch 2",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
+    addPluginParameter (new Parameter (paramFilter3,      "Filter Ch 3",        "Ch 3",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
+    addPluginParameter (new Parameter (paramLP,           "Low Pass",           "LP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramBP,           "Band Pass",          "BP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramHP,           "High Pass",          "HP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
+    addPluginParameter (new Parameter (paramCutoff,       "Cutoff",             "Cutoff",     "Hz", 0.0f, 2047.0f, 1.0f, 1024.0f, 1.0f, cutoffTextFunction));
+    addPluginParameter (new Parameter (paramReso,         "Resonance",          "Reso",       "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, percentTextFunction));
+    addPluginParameter (new Parameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f, percentTextFunction));
+    addPluginParameter (new Parameter (paramOutput3,      "Output 3",           "Output",     "", 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, onOffTextFunction));
 }
 
 SIDAudioProcessor::~SIDAudioProcessor()
