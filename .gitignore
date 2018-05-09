@@ -40,3 +40,7 @@ Release64
 *.opendb
 *.db
 *.suo
+
+plugin/Builds/VisualStudio2017/x64
+plugin/Builds/VisualStudio2017/Win32
+plugin/Builds/VisualStudio2017/.vs
