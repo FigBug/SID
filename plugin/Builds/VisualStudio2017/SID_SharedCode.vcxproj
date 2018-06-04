@@ -491,6 +491,24 @@
     <ClCompile Include="..\..\..\modules\drowaudio\module\dRowAudio\dRowAudio.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParser.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserBase.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserBytecode.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserCallback.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserError.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserTokenReader.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\modules\gin\modules\gin\components\mapviewer.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -543,6 +561,9 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\modules\gin\modules\gin\plugin\program.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\modules\gin\modules\gin\utilities\equationparser.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\modules\gin\modules\gin\utilities\filesystemwatcher.cpp">
@@ -2440,6 +2461,17 @@
     <ClInclude Include="..\..\..\modules\drowaudio\module\dRowAudio\utility\dRowAudio_Utility.h"/>
     <ClInclude Include="..\..\..\modules\drowaudio\module\dRowAudio\utility\dRowAudio_XmlHelpers.h"/>
     <ClInclude Include="..\..\..\modules\drowaudio\module\dRowAudio\dRowAudio.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParser.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserBase.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserBytecode.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserCallback.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserDef.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserError.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserFixes.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserStack.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserTemplateMagic.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserToken.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\3rdparty\muParser\muParserTokenReader.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\components\mapviewer.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\components\plugincomponents.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\components\pluginlookandfeel.h"/>
@@ -2458,6 +2490,7 @@
     <ClInclude Include="..\..\..\modules\gin\modules\gin\plugin\plugineditor.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\plugin\processor.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\plugin\program.h"/>
+    <ClInclude Include="..\..\..\modules\gin\modules\gin\utilities\equationparser.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\utilities\filesystemwatcher.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\utilities\integrator.h"/>
     <ClInclude Include="..\..\..\modules\gin\modules\gin\utilities\leastsquaresregression.h"/>
