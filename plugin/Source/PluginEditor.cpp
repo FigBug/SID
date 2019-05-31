@@ -24,7 +24,7 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     logo = ImageFileFormat::loadFrom (BinaryData::logo_png, BinaryData::logo_pngSize);
     
-    for (Parameter* pp : p.getPluginParameters())
+    for (auto pp : p.getPluginParameters())
     {
         ParamComponent* c;
         
@@ -33,7 +33,7 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
         else if (pp->getUid() == AP::paramWave1 || pp->getUid() == AP::paramWave2 || pp->getUid() == AP::paramWave3)
             c = new Select (pp);
         else
-            c = pp->isOnOff() ? (ParamComponent*)new Switch (pp) : (ParamComponent*)new Knob (pp);
+            c = pp->isOnOff() ? (ParamComponent*) new Switch (pp) : (ParamComponent*) new Knob (pp);
         
         addAndMakeVisible (c);
         controls.add (c);
@@ -67,8 +67,6 @@ void SIDAudioProcessorEditor::resized()
     using AP = SIDAudioProcessor;
     
     GinAudioProcessorEditor::resized();
-    
-    Rectangle<int> r = getControlsArea();
     
     int idx = 0;
     Rectangle<int> rc;
