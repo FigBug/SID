@@ -338,7 +338,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
             writeReg (0x0F, period >> 8);
         }
         
-        if (updateBend && lastNote != curNote)
+        if (updateBend || lastNote != curNote)
         {
             updateOscs (curNote);
             lastNote = curNote;
