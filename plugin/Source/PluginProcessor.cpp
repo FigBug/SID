@@ -283,10 +283,10 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
     
     int pos = 0;
     MidiMessage msg;
-    bool updateBend = false;
     MidiBuffer::Iterator itr (midi);
     while (itr.getNextEvent (msg, pos))
     {
+        bool updateBend = false;
         runUntil (done, buffer, pos);
         
         if (msg.isNoteOn())
@@ -338,8 +338,11 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
             writeReg (0x0F, period >> 8);
         }
         
-        updateOscs (curNote);
-        lastNote = curNote;
+        if (updateBend && lastNote != curNote)
+        {
+            updateOscs (curNote);
+            lastNote = curNote;
+        }
     }
     
     runUntil (done, buffer, buffer.getNumSamples());
