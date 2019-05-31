@@ -85,6 +85,8 @@ public:
 
 private:
     void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
+    void updateOscs (int curNote);
+    void writeReg (uint8 reg, uint8 value);
     
     int lastNote = -1;
     int velocity = 0;
@@ -96,11 +98,10 @@ private:
     SIDAudioProcessorEditor* editor = nullptr;
     
     SID sid;
+    IIRFilter outputFilter;
     
-    uint8_t last15 = 0xff;
-    uint8_t last16 = 0xff;
-    uint8_t last17 = 0xff;
-    uint8_t last18 = 0xff;
+    std::map<uint8, uint8> regCache;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SIDAudioProcessor)
 };
