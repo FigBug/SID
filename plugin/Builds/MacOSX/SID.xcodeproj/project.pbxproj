@@ -602,7 +602,7 @@
 			isa = PBXFileReference;
 			lastKnownFileType = file;
 			name = dRowAudio;
-			path = ../../../modules/drowaudio/module/dRowAudio;
+			path = ../../../modules/dRowAudio/module/dRowAudio;
 			sourceTree = "SOURCE_ROOT";
 		};
 		74E7E764B3E3E82B66E023F8 = {
@@ -1229,7 +1229,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
@@ -1287,7 +1287,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
@@ -1344,7 +1344,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
@@ -1403,7 +1403,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
@@ -1458,7 +1458,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
@@ -1510,7 +1510,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
@@ -1562,7 +1562,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
@@ -1614,7 +1614,7 @@
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
 					"/Users/rrabien/SDKs/vstsdk2.4",
 					"../../JuceLibraryCode",
-					"../../../modules/drowaudio/module",
+					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
 					"../../../modules/juce/modules",
 					"../../../3rdparty/resid-0.16",
