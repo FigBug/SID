@@ -56,7 +56,7 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" extraCompilerFlags="-Wunused-value"
-               extraDefs="VERSION=&quot;0.16&quot;">
+               extraDefs="VERSION=&quot;0.16&quot;" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16"
                        osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1"/>
@@ -87,7 +87,7 @@
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2017 targetFolder="Builds/VisualStudio2017" extraDefs="VERSION=&quot;0.16&quot;"
-            toolset="v141_xp">
+            toolset="v141_xp" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="Win32"
                        isDebug="1" optimisation="1" targetName="SID_32b" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
@@ -131,7 +131,7 @@
       </MODULEPATHS>
     </VS2017>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraLinkerFlags="-fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,-O1 -Wl,--as-needed -Wl,--strip-all"
-                extraCompilerFlags="-fvisibility=hidden">
+                extraCompilerFlags="-fvisibility=hidden" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
                        libraryPath="/usr/X11R6/lib/"/>

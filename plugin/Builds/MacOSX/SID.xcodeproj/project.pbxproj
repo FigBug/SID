@@ -598,13 +598,6 @@
 			path = "../../../modules/juce/modules/juce_audio_formats";
 			sourceTree = "SOURCE_ROOT";
 		};
-		720B69A41B5D6BB501B189E5 = {
-			isa = PBXFileReference;
-			lastKnownFileType = file;
-			name = dRowAudio;
-			path = ../../../modules/dRowAudio/module/dRowAudio;
-			sourceTree = "SOURCE_ROOT";
-		};
 		74E7E764B3E3E82B66E023F8 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
@@ -850,6 +843,13 @@
 			path = "../../../modules/juce/modules/juce_gui_extra";
 			sourceTree = "SOURCE_ROOT";
 		};
+		CA31CE79C5351E0DDD568B1A = {
+			isa = PBXFileReference;
+			lastKnownFileType = file;
+			name = dRowAudio;
+			path = ../../../modules/dRowAudio/module/dRowAudio;
+			sourceTree = "SOURCE_ROOT";
+		};
 		CFF87B47ACE4001BB8CA4DDF = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.plist.xml;
@@ -1061,7 +1061,7 @@
 		C150C309706B28C788E06488 = {
 			isa = PBXGroup;
 			children = (
-				720B69A41B5D6BB501B189E5,
+				CA31CE79C5351E0DDD568B1A,
 				1063B76133791E0E344065A2,
 				020523964E53EE6921C83ED4,
 				16C8E2A70707F1419EB36AF9,
@@ -1227,7 +1227,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
@@ -1285,7 +1285,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
@@ -1342,7 +1342,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
@@ -1401,7 +1401,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
@@ -1456,7 +1456,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
@@ -1508,7 +1508,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
@@ -1560,7 +1560,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
@@ -1612,7 +1612,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					"../../../modules/juce/modules/juce_audio_processors/format_types/VST3_SDK",
-					"/Users/rrabien/SDKs/vstsdk2.4",
+					"../../../modules/plugin_sdk/vstsdk2.4",
 					"../../JuceLibraryCode",
 					"../../../modules/dRowAudio/module",
 					"../../../modules/gin/modules",
