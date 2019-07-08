@@ -59,10 +59,10 @@
                extraDefs="VERSION=&quot;0.16&quot;" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16"
-                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1"/>
+                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="SID"
                        headerPath="../../../3rdparty/resid-0.16" osxArchitecture="64BitUniversal"
-                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1"/>
+                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../modules/juce/modules"/>
