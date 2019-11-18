@@ -7,7 +7,7 @@
               pluginManufacturerCode="Soca" pluginCode="Sidd" pluginChannelConfigs="{0,1}"
               pluginIsSynth="1" pluginWantsMidiIn="1" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="SIDAU"
-              aaxIdentifier="com.socalabs.SID" pluginAAXCategory="2" jucerVersion="5.4.3"
+              aaxIdentifier="com.socalabs.SID" pluginAAXCategory="2" jucerVersion="5.4.5"
               companyName="SocaLabs" companyWebsite="www.socalabs.com" companyEmail="info@socalabs.com"
               displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
               buildStandalone="1" enableIAA="0" cppLanguageStandard="17" companyCopyright="SocaLabs"
@@ -56,13 +56,15 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" extraCompilerFlags="-Wunused-value"
-               extraDefs="VERSION=&quot;0.16&quot;" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
+               extraDefs="VERSION=&quot;0.16&quot;" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4"
+               hardenedRuntime="1">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16"
                        osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="SID"
-                       headerPath="../../../3rdparty/resid-0.16" osxArchitecture="64BitUniversal"
-                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"/>
+                       headerPath="../../../3rdparty/resid-0.16" osxArchitecture="64BitIntel"
+                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"
+                       linkTimeOptimisation="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../modules/juce/modules"/>
