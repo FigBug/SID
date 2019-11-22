@@ -19,5 +19,5 @@ cd "%ROOT%\Scripts\bin"
 copy "%ROOT%\plugin\Builds\VisualStudio2017\x64\Release64\VST\SID_64b.dll" .
 copy "%ROOT%\plugin\Builds\VisualStudio2017\Win32\Release\VST\SID_32b.dll" .
 
-7z a PAPU_Win.zip PAPU_32b.dll PAPU_64b.dll
-copy PAPU_Win.zip win
+7z a SID_Win.zip SID_32b.dll SID_64b.dll
+copy SID_Win.zip win
