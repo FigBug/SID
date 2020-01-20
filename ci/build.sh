@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-PLUGIN="PAPU"
+PLUGIN="SID"
 
 # mac specific stuff
 if [ $OS = "mac" ]; then
