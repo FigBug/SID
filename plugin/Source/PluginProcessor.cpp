@@ -163,49 +163,46 @@ SIDAudioProcessor::SIDAudioProcessor()
         return String::formatted ("%d Hz", sid.regToCutoff (reg16 (userValue)));
     };
     
-    addPluginParameter (new Parameter (paramWave1,        "Pulse 1 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 1.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new Parameter (paramPulseWidth1,  "Pulse 1 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
-    addPluginParameter (new Parameter (paramA1,           "Pulse 1 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
-    addPluginParameter (new Parameter (paramD1,           "Pulse 1 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new Parameter (paramS1,           "Pulse 1 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
-    addPluginParameter (new Parameter (paramR1,           "Pulse 1 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new Parameter (paramTune1,        "Pulse 1 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new Parameter (paramFine1,        "Pulse 1 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new Parameter (paramSync1,        "Pulse 1 Sync",       "Sync 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new Parameter (paramRing1,        "Pulse 1 Ring",       "Ring 1<3",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-
-    addPluginParameter (new Parameter (paramWave2,        "Pulse 2 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new Parameter (paramPulseWidth2,  "Pulse 2 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
-    addPluginParameter (new Parameter (paramA2,           "Pulse 2 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
-    addPluginParameter (new Parameter (paramD2,           "Pulse 2 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new Parameter (paramS2,           "Pulse 2 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
-    addPluginParameter (new Parameter (paramR2,           "Pulse 2 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new Parameter (paramTune2,        "Pulse 2 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new Parameter (paramFine2,        "Pulse 2 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new Parameter (paramSync2,        "Pulse 2 Sync",       "Sync 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new Parameter (paramRing2,        "Pulse 2 Ring",       "Ring 2<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-
-    addPluginParameter (new Parameter (paramWave3,        "Pulse 3 Wave",       "Wave",       "", 0.0f, 4.0f,  1.0f, 0.0f, 1.0f, waveTextFunction));
-    addPluginParameter (new Parameter (paramPulseWidth3,  "Pulse 3 Pulse Width","PW",         "", 0.0f, 4095.0f,  1.0f, 2048.0f, 1.0f, dutyCycleTextFunction));
-    addPluginParameter (new Parameter (paramA3,           "Pulse 3 A",          "A",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, aTextFunction));
-    addPluginParameter (new Parameter (paramD3,           "Pulse 3 D",          "D",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new Parameter (paramS3,           "Pulse 3 S",          "S",          "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, sTextFunction));
-    addPluginParameter (new Parameter (paramR3,           "Pulse 3 R",          "R",          "", 0.0f, 15.0f, 1.0f, 4.0f, 1.0f, drTextFunction));
-    addPluginParameter (new Parameter (paramTune3,        "Pulse 3 Tune",       "Tune",       "", -48.0f, 48.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new Parameter (paramFine3,        "Pulse 3 Fine",       "Fine",       "", -100.0f, 100.0f, 1.0f, 0.0f, 1.0f, wholeNumberTextFunction));
-    addPluginParameter (new Parameter (paramSync3,        "Pulse 3 Sync",       "Sync 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new Parameter (paramRing3,        "Pulse 3 Ring",       "Ring 3<1",   "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-
-    addPluginParameter (new Parameter (paramFilter1,      "Filter Ch 1",        "Ch 1",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
-    addPluginParameter (new Parameter (paramFilter2,      "Filter Ch 2",        "Ch 2",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
-    addPluginParameter (new Parameter (paramFilter3,      "Filter Ch 3",        "Ch 3",       "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, filterTextFunction));
-    addPluginParameter (new Parameter (paramLP,           "Low Pass",           "LP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new Parameter (paramBP,           "Band Pass",          "BP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new Parameter (paramHP,           "High Pass",          "HP",         "", 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, onOffTextFunction));
-    addPluginParameter (new Parameter (paramCutoff,       "Cutoff",             "Cutoff",     "Hz", 0.0f, 2047.0f, 1.0f, 1024.0f, 1.0f, cutoffTextFunction));
-    addPluginParameter (new Parameter (paramReso,         "Resonance",          "Reso",       "", 0.0f, 15.0f, 1.0f, 8.0f, 1.0f, percentTextFunction));
-    addPluginParameter (new Parameter (paramVol,          "Volume",             "Volume",     "", 0.0f, 15.0f, 1.0f, 10.0f, 1.0f, percentTextFunction));
-    addPluginParameter (new Parameter (paramOutput3,      "Output 3",           "Output",     "", 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, onOffTextFunction));
+    addExtParam (paramWave1,        "Pulse 1 Wave",       "Wave",       "", {    0.0f,    4.0f, 1.0f, 1.0f },    1.0f, 0.0f, waveTextFunction);
+    addExtParam (paramPulseWidth1,  "Pulse 1 Pulse Width","PW",         "", {    0.0f, 4095.0f, 1.0f, 1.0f }, 2048.0f, 0.0f, dutyCycleTextFunction);
+    addExtParam (paramA1,           "Pulse 1 A",          "A",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, aTextFunction);
+    addExtParam (paramD1,           "Pulse 1 D",          "D",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, drTextFunction);
+    addExtParam (paramS1,           "Pulse 1 S",          "S",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    8.0f, 0.0f, sTextFunction);
+    addExtParam (paramR1,           "Pulse 1 R",          "R",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, drTextFunction);
+    addExtParam (paramTune1,        "Pulse 1 Tune",       "Tune",       "", {  -48.0f,   48.0f, 1.0f, 1.0f },    0.0f, 0.0f, wholeNumberTextFunction);
+    addExtParam (paramFine1,        "Pulse 1 Fine",       "Fine",       "", { -100.0f,  100.0f, 1.0f, 1.0f },    0.0f, 0.0f, wholeNumberTextFunction);
+    addExtParam (paramSync1,        "Pulse 1 Sync",       "Sync 1<3",   "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramRing1,        "Pulse 1 Ring",       "Ring 1<3",   "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramWave2,        "Pulse 2 Wave",       "Wave",       "", {    0.0f,    4.0f, 1.0f, 1.0f },    0.0f, 0.0f, waveTextFunction);
+    addExtParam (paramPulseWidth2,  "Pulse 2 Pulse Width","PW",         "", {    0.0f, 4095.0f, 1.0f, 1.0f }, 2048.0f, 0.0f, dutyCycleTextFunction);
+    addExtParam (paramA2,           "Pulse 2 A",          "A",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, aTextFunction);
+    addExtParam (paramD2,           "Pulse 2 D",          "D",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, drTextFunction);
+    addExtParam (paramS2,           "Pulse 2 S",          "S",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    8.0f, 0.0f, sTextFunction);
+    addExtParam (paramR2,           "Pulse 2 R",          "R",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, drTextFunction);
+    addExtParam (paramTune2,        "Pulse 2 Tune",       "Tune",       "", {  -48.0f,   48.0f, 1.0f, 1.0f },    0.0f, 0.0f, wholeNumberTextFunction);
+    addExtParam (paramFine2,        "Pulse 2 Fine",       "Fine",       "", { -100.0f,  100.0f, 1.0f, 1.0f },    0.0f, 0.0f, wholeNumberTextFunction);
+    addExtParam (paramSync2,        "Pulse 2 Sync",       "Sync 2<1",   "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramRing2,        "Pulse 2 Ring",       "Ring 2<1",   "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramWave3,        "Pulse 3 Wave",       "Wave",       "", {    0.0f,    4.0f, 1.0f, 1.0f },    0.0f, 0.0f, waveTextFunction);
+    addExtParam (paramPulseWidth3,  "Pulse 3 Pulse Width","PW",         "", {    0.0f, 4095.0f, 1.0f, 1.0f }, 2048.0f, 0.0f, dutyCycleTextFunction);
+    addExtParam (paramA3,           "Pulse 3 A",          "A",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, aTextFunction);
+    addExtParam (paramD3,           "Pulse 3 D",          "D",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, drTextFunction);
+    addExtParam (paramS3,           "Pulse 3 S",          "S",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    8.0f, 0.0f, sTextFunction);
+    addExtParam (paramR3,           "Pulse 3 R",          "R",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, drTextFunction);
+    addExtParam (paramTune3,        "Pulse 3 Tune",       "Tune",       "", {  -48.0f,   48.0f, 1.0f, 1.0f },    0.0f, 0.0f, wholeNumberTextFunction);
+    addExtParam (paramFine3,        "Pulse 3 Fine",       "Fine",       "", { -100.0f,  100.0f, 1.0f, 1.0f },    0.0f, 0.0f, wholeNumberTextFunction);
+    addExtParam (paramSync3,        "Pulse 3 Sync",       "Sync 3<1",   "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramRing3,        "Pulse 3 Ring",       "Ring 3<1",   "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramFilter1,      "Filter Ch 1",        "Ch 1",       "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, filterTextFunction);
+    addExtParam (paramFilter2,      "Filter Ch 2",        "Ch 2",       "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, filterTextFunction);
+    addExtParam (paramFilter3,      "Filter Ch 3",        "Ch 3",       "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, filterTextFunction);
+    addExtParam (paramLP,           "Low Pass",           "LP",         "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramBP,           "Band Pass",          "BP",         "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramHP,           "High Pass",          "HP",         "", {    0.0f,    1.0f, 1.0f, 1.0f },    0.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramCutoff,       "Cutoff",             "Cutoff",   "Hz", {    0.0f, 2047.0f, 1.0f, 1.0f }, 1024.0f, 0.0f, cutoffTextFunction);
+    addExtParam (paramReso,         "Resonance",          "Reso",       "", {    0.0f,   15.0f, 1.0f, 1.0f },    8.0f, 0.0f, percentTextFunction);
+    addExtParam (paramVol,          "Volume",             "Volume",     "", {    0.0f,   15.0f, 1.0f, 1.0f },   10.0f, 0.0f, percentTextFunction);
+    addExtParam (paramOutput3,      "Output 3",           "Output",     "", {    0.0f,    1.0f, 1.0f, 1.0f },    1.0f, 0.0f, onOffTextFunction);
 }
 
 SIDAudioProcessor::~SIDAudioProcessor()
@@ -345,14 +342,14 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
         }
     }
     
-    runUntil (done, buffer, buffer.getNumSamples());
+    int numSamples = buffer.getNumSamples();
+    runUntil (done, buffer, numSamples);
     
-    float* data = buffer.getWritePointer (0);
-    outputFilter.processSamples (data, buffer.getNumSamples());
-    
-    ScopedLock sl (editorLock);
-    if (editor)
-        editor->scope.addSamples (data, buffer.getNumSamples());
+    auto data = buffer.getWritePointer (0);
+    outputFilter.processSamples (data, numSamples);
+
+    if (fifo.getFreeSpace() >= numSamples)
+        fifo.writeMono (data, numSamples);
 }
 
 void SIDAudioProcessor::updateOscs (int curNote)
@@ -383,8 +380,8 @@ void SIDAudioProcessor::updateOscs (int curNote)
         
         // set wave on
         uint8_t waveType = uint8_t (parameterIntValue (paramWave1));
-        uint8_t sync = parameterValue (paramSync1) ? 0x02 : 0x00;
-        uint8_t ring = parameterValue (paramRing1) ? 0x04 : 0x00;
+        uint8_t sync = parameterBoolValue (paramSync1) ? 0x02 : 0x00;
+        uint8_t ring = parameterBoolValue (paramRing1) ? 0x04 : 0x00;
         uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
         writeReg (0x04, (wave << 4) | sync | ring | 0x01);
     }
@@ -498,8 +495,7 @@ bool SIDAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* SIDAudioProcessor::createEditor()
 {
-    editor = new SIDAudioProcessorEditor (*this);
-    return editor;
+    return new SIDAudioProcessorEditor (*this);
 }
 
 //==============================================================================

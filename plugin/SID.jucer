@@ -7,7 +7,7 @@
               pluginManufacturerCode="Soca" pluginCode="Sidd" pluginChannelConfigs="{0,1}"
               pluginIsSynth="1" pluginWantsMidiIn="1" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="SIDAU"
-              aaxIdentifier="com.socalabs.SID" pluginAAXCategory="2" jucerVersion="5.4.6"
+              aaxIdentifier="com.socalabs.SID" pluginAAXCategory="2" jucerVersion="5.4.7"
               companyName="SocaLabs" companyWebsite="www.socalabs.com" companyEmail="info@socalabs.com"
               displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
               buildStandalone="1" enableIAA="0" cppLanguageStandard="17" companyCopyright="SocaLabs"
@@ -56,8 +56,8 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" extraCompilerFlags="-Wunused-value"
-               extraDefs="VERSION=&quot;0.16&quot;" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4"
-               hardenedRuntime="1">
+               extraDefs="VERSION=&quot;0.16&quot;&#10;JUCE_COREGRAPHICS_DRAW_ASYNC=1"
+               vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4" hardenedRuntime="1">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16"
                        osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"/>

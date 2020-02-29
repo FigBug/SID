@@ -20,15 +20,15 @@ class SIDAudioProcessorEditor  : public gin::GinAudioProcessorEditor
 {
 public:
     SIDAudioProcessorEditor (SIDAudioProcessor&);
-    ~SIDAudioProcessorEditor();
+    ~SIDAudioProcessorEditor() override;
 
     //==============================================================================
     void resized() override;
     void paint (Graphics& g) override;
 
-    SIDAudioProcessor& processor;
+    SIDAudioProcessor& proc;
     
-    drow::TriggeredScope scope;
+    gin::TriggeredScope scope {proc.fifo};
     Image logo;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SIDAudioProcessorEditor)

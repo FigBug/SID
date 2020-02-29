@@ -22,7 +22,7 @@ class SIDAudioProcessor : public gin::GinProcessor
 public:
     //==============================================================================
     SIDAudioProcessor();
-    ~SIDAudioProcessor();
+    ~SIDAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -76,12 +76,8 @@ public:
     static const char* paramHP;
     static const char* paramVol;
     static const char* paramOutput3;
-
-    void setEditor (SIDAudioProcessorEditor* editor_)
-    {
-        ScopedLock sl (editorLock);
-        editor = editor_;
-    }
+    
+    gin::AudioFifo fifo {1, 44100};
 
 private:
     void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
@@ -94,8 +90,6 @@ private:
     Array<int> noteQueue;
     
     LinearSmoothedValue<float> outputSmoothed;
-    CriticalSection editorLock;
-    SIDAudioProcessorEditor* editor = nullptr;
     
     SID sid;
     IIRFilter outputFilter;

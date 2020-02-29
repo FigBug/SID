@@ -16,7 +16,7 @@ using namespace gin;
 
 //==============================================================================
 SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
-  : GinAudioProcessorEditor (p, 60, 100), processor (p)
+  : GinAudioProcessorEditor (p, 60, 100), proc (p)
 {
     additionalProgramming = "Dag Lem";
     
@@ -45,13 +45,10 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     scope.setNumSamplesPerPixel (2);
     scope.setVerticalZoomFactor (3.0f);
-
-    p.setEditor (this);
 }
 
 SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 {
-    processor.setEditor (nullptr);
 }
 
 //==============================================================================
@@ -70,7 +67,7 @@ void SIDAudioProcessorEditor::resized()
     
     int idx = 0;
     Rectangle<int> rc;
-    for (Parameter* pp : processor.getPluginParameters())
+    for (auto pp : proc.getPluginParameters())
     {
         if (idx < 30)
         {
