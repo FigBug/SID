@@ -2,6 +2,18 @@
 
 PLUGIN="SID"
 
+# linux specific stiff
+if [ $OS = "linux" ]; then
+  export GDK_BACKEND=x11
+
+  sudo apt-get update
+  sudo apt-get install clang git ladspa-sdk freeglut3-dev g++ libasound2-dev libcurl4-openssl-dev libfreetype6-dev libjack-jackd2-dev libx11-dev libxcomposite-dev libxcursor-dev libxinerama-dev libxrandr-dev mesa-common-dev webkit2gtk-4.0 juce-tools xvfb
+
+  Xvfb :99 &
+  export DISPLAY=:99
+  sleep 5
+fi
+
 # mac specific stuff
 if [ $OS = "mac" ]; then
   # Create a temp keychain
@@ -29,6 +41,9 @@ ROOT=$(cd "$(dirname "$0")/.."; pwd)
 cd "$ROOT"
 echo "$ROOT"
 
+BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
+echo "$BRANCH"
+
 cd "$ROOT/ci"
 rm -Rf bin
 mkdir bin
@@ -55,6 +70,8 @@ done
 # Resave jucer file
 if [ "$OS" = "mac" ]; then
   "$ROOT/ci/bin/Projucer.app/Contents/MacOS/Projucer" --resave "$ROOT/plugin/$PLUGIN.jucer"
+else if [ "$OS" = "linux" ]; then
+  "$ROOT/ci/bin/Projucer" --resave "$ROOT/plugins/$PLUGIN/$PLUGIN.jucer"
 else
   "$ROOT/ci/bin/Projucer.exe" --resave "$ROOT/plugin/$PLUGIN.jucer"
 fi
@@ -94,8 +111,28 @@ if [ "$OS" = "mac" ]; then
   xcrun stapler staple $PLUGIN.vst
   xcrun stapler staple $PLUGIN.component
   zip -r ${PLUGIN}_Mac.zip $PLUGIN.vst $PLUGIN.component
+  
+  if [ "$BRANCH" = "release" ]; then
+    curl -F "files=@${PLUGIN}_Mac.zip" "https://socalabs.com/files/set.php?key=$APIKEY"
+  fi
+fi
 
-  curl -F "files=@${PLUGIN}_Mac.zip" "https://socalabs.com/files/set.php?key=$APIKEY"
+# Build linux version
+if [ "$OS" = "linux" ]; then
+  cd "$ROOT/plugins/$PLUGIN/Builds/LinuxMakefile"
+  make CONFIG=Release
+
+  cp ./build/$PLUGIN.so "$ROOT/ci/bin"
+
+  cd "$ROOT/ci/bin"
+
+  # Upload
+  cd "$ROOT/ci/bin"
+  zip -r ${PLUGIN}_Linux.zip $PLUGIN.so
+
+  if [ "$BRANCH" = "release" ]; then
+    curl -F "files=@${PLUGIN}_Mac.zip" "https://socalabs.com/files/set.php?key=$APIKEY"
+  fi
 fi
 
 # Build Win version
@@ -116,5 +153,7 @@ if [ "$OS" = "win" ]; then
 
   7z a ${PLUGIN}_Win.zip ${PLUGIN}_64b.dll ${PLUGIN}_32b.dll
 
-  curl -F "files=@${PLUGIN}_Win.zip" "https://socalabs.com/files/set.php?key=$APIKEY"
+  if [ "$BRANCH" = "release" ]; then
+    curl -F "files=@${PLUGIN}_Win.zip" "https://socalabs.com/files/set.php?key=$APIKEY"
+  fi
 fi

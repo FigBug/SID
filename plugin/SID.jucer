@@ -140,10 +140,10 @@
                 extraCompilerFlags="-fvisibility=hidden" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
-                       libraryPath="/usr/X11R6/lib/"/>
+                       libraryPath="/usr/X11R6/lib/" linuxArchitecture="-m64"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="SID"
                        headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
-                       libraryPath="/usr/X11R6/lib/"/>
+                       libraryPath="/usr/X11R6/lib/" linuxArchitecture="-m64"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="../modules/juce/modules"/>
