@@ -119,7 +119,7 @@ fi
 
 # Build linux version
 if [ "$OS" = "linux" ]; then
-  cd "$ROOT/plugins/$PLUGIN/Builds/LinuxMakefile"
+  cd "$ROOT/plugin/Builds/LinuxMakefile"
   make CONFIG=Release
 
   cp ./build/$PLUGIN.so "$ROOT/ci/bin"
