@@ -71,7 +71,7 @@ done
 if [ "$OS" = "mac" ]; then
   "$ROOT/ci/bin/Projucer.app/Contents/MacOS/Projucer" --resave "$ROOT/plugin/$PLUGIN.jucer"
 elif [ "$OS" = "linux" ]; then
-  "$ROOT/ci/bin/Projucer" --resave "$ROOT/plugins/$PLUGIN.jucer"
+  "$ROOT/ci/bin/Projucer" --resave "$ROOT/plugin/$PLUGIN.jucer"
 else
   "$ROOT/ci/bin/Projucer.exe" --resave "$ROOT/plugin/$PLUGIN.jucer"
 fi
