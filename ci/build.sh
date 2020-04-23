@@ -70,7 +70,7 @@ done
 # Resave jucer file
 if [ "$OS" = "mac" ]; then
   "$ROOT/ci/bin/Projucer.app/Contents/MacOS/Projucer" --resave "$ROOT/plugin/$PLUGIN.jucer"
-else if [ "$OS" = "linux" ]; then
+elif [ "$OS" = "linux" ]; then
   "$ROOT/ci/bin/Projucer" --resave "$ROOT/plugins/$PLUGIN/$PLUGIN.jucer"
 else
   "$ROOT/ci/bin/Projucer.exe" --resave "$ROOT/plugin/$PLUGIN.jucer"
