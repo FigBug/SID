@@ -278,11 +278,11 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
     int done = 0;
     runUntil (done, buffer, 0);
     
-    int pos = 0;
-    MidiMessage msg;
-    MidiBuffer::Iterator itr (midi);
-    while (itr.getNextEvent (msg, pos))
+    for (auto itr : midi)
     {
+        auto msg = itr.getMessage();
+        int pos = itr.samplePosition;
+
         bool updateBend = false;
         runUntil (done, buffer, pos);
         
