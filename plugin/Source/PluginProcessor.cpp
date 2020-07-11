@@ -13,50 +13,394 @@
 
 using namespace gin;
 
-const char* SIDAudioProcessor::paramPulseWidth1 = "pw1";
-const char* SIDAudioProcessor::paramWave1       = "w1";
-const char* SIDAudioProcessor::paramA1          = "a1";
-const char* SIDAudioProcessor::paramD1          = "d1";
-const char* SIDAudioProcessor::paramS1          = "s1";
-const char* SIDAudioProcessor::paramR1          = "r1";
-const char* SIDAudioProcessor::paramTune1       = "tune1";
-const char* SIDAudioProcessor::paramFine1       = "fine1";
-const char* SIDAudioProcessor::paramSync1       = "sync1";
-const char* SIDAudioProcessor::paramRing1       = "ring1";
+//==============================================================================
+SIDEngine::SIDEngine (SIDAudioProcessor& p)
+    : processor (p)
+{
+}
 
-const char* SIDAudioProcessor::paramPulseWidth2 = "pw2";
-const char* SIDAudioProcessor::paramWave2       = "w2";
-const char* SIDAudioProcessor::paramA2          = "a2";
-const char* SIDAudioProcessor::paramD2          = "d2";
-const char* SIDAudioProcessor::paramS2          = "s2";
-const char* SIDAudioProcessor::paramR2          = "r2";
-const char* SIDAudioProcessor::paramTune2       = "tune2";
-const char* SIDAudioProcessor::paramFine2       = "fine2";
-const char* SIDAudioProcessor::paramSync2       = "sync2";
-const char* SIDAudioProcessor::paramRing2       = "ring2";
+void SIDEngine::prepareToPlay (double sampleRate)
+{
+    sid.reset();
+    sid.set_chip_model (MOS6581);
+    sid.set_sampling_parameters (1022730, SAMPLE_INTERPOLATE, sampleRate);
+}
 
-const char* SIDAudioProcessor::paramPulseWidth3 = "pw3";
-const char* SIDAudioProcessor::paramWave3       = "w3";
-const char* SIDAudioProcessor::paramA3          = "a3";
-const char* SIDAudioProcessor::paramD3          = "d3";
-const char* SIDAudioProcessor::paramS3          = "s3";
-const char* SIDAudioProcessor::paramR3          = "r3";
-const char* SIDAudioProcessor::paramTune3       = "tune3";
-const char* SIDAudioProcessor::paramFine3       = "fine3";
-const char* SIDAudioProcessor::paramSync3       = "sync3";
-const char* SIDAudioProcessor::paramRing3       = "ring3";
+int SIDEngine::parameterIntValue (const String& uid)
+{
+    return processor.parameterIntValue (uid);
+}
 
-const char* SIDAudioProcessor::paramCutoff      = "cutoff";
-const char* SIDAudioProcessor::paramReso        = "reso";
-const char* SIDAudioProcessor::paramFilter1     = "f1";
-const char* SIDAudioProcessor::paramFilter2     = "f2";
-const char* SIDAudioProcessor::paramFilter3     = "f3";
-const char* SIDAudioProcessor::paramLP          = "lowpass";
-const char* SIDAudioProcessor::paramBP          = "bandpass";
-const char* SIDAudioProcessor::paramHP          = "highpass";
+float SIDEngine::parameterValue (const String& uid)
+{
+    return processor.parameterValue (uid);
+}
 
-const char* SIDAudioProcessor::paramVol         = "vol";
-const char* SIDAudioProcessor::paramOutput3     = "output3";
+bool SIDEngine::parameterBoolValue (const String& uid)
+{
+    return processor.parameterBoolValue (uid);
+}
+
+void SIDEngine::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
+{
+    int todo = jmin (pos, buffer.getNumSamples()) - done;
+    
+    while (todo > 0)
+    {
+        cycle_count clock = 64;
+        while (clock && todo > 0)
+        {
+            short out[1024];
+            int count = sid.clock (clock, out, jmin (todo, 1024));
+            
+            float* data = buffer.getWritePointer (0, done);
+            for (int i = 0; i < count; i++)
+                data[i] = out[i] / 32768.0f;
+        
+            done += count;
+            todo -= count;
+        }
+    }
+}
+
+void SIDEngine::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
+{
+    // Update the filters
+    uint8_t reg;
+    
+    reg = parameterIntValue (SIDAudioProcessor::paramCutoff) & 0x7;
+    writeReg (0x15, reg);
+    
+    reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramCutoff) >> 3);
+    writeReg (0x16, reg);
+    
+    reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramReso) << 4 |
+                   parameterIntValue (SIDAudioProcessor::paramFilter3) << 2 |
+                   parameterIntValue (SIDAudioProcessor::paramFilter2) << 1 |
+                   parameterIntValue (SIDAudioProcessor::paramFilter1) << 0);
+    
+    writeReg (0x17, reg);
+    
+    reg = uint8_t ((parameterIntValue (SIDAudioProcessor::paramOutput3) ? 0 : 1) << 7 |
+                    parameterIntValue(SIDAudioProcessor::paramHP) << 6 |
+                    parameterIntValue(SIDAudioProcessor::paramBP) << 5 |
+                    parameterIntValue(SIDAudioProcessor::paramLP) << 4 |
+                    parameterIntValue (SIDAudioProcessor::paramVol));
+    
+    writeReg (0x18, reg);
+    
+    updateOscs (lastNote);
+    
+    int done = 0;
+    runUntil (done, buffer, 0);
+    
+    for (auto itr : midi)
+    {
+        auto msg = itr.getMessage();
+        int pos = itr.samplePosition;
+
+        bool updateBend = false;
+        runUntil (done, buffer, pos);
+        
+        if (msg.isNoteOn())
+        {
+            noteQueue.add (msg.getNoteNumber());
+            velocity = msg.getVelocity();
+        }
+        else if (msg.isNoteOff())
+        {
+            noteQueue.removeFirstMatchingValue (msg.getNoteNumber());
+        }
+        else if (msg.isAllNotesOff())
+        {
+            noteQueue.clear();
+            pitchBend = 0;
+        }
+        else if (msg.isPitchWheel())
+        {
+            updateBend = true;
+            pitchBend = (msg.getPitchWheelValue() - 8192) / 8192.0f * 2;
+        }
+        
+        const int curNote = noteQueue.size() > 0 ? noteQueue.getLast() : -1;
+        
+        if (updateBend)
+        {
+            float freq;
+            int period;
+            
+            // set freq 1
+            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
+            period = int (freq * (14 * std::pow (2, 24)) / 14318182);
+            
+            writeReg (0x00, period & 0xFF);
+            writeReg (0x01, period >> 8);
+            
+            // set freq
+            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
+            period = int (freq * (14 * pow (2, 24)) / 14318182);
+            
+            writeReg (0x07, period & 0xFF);
+            writeReg (0x08, period >> 8);
+            
+            // set freq 3
+            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
+            period = int (freq * (14 * std::pow (2, 24)) / 14318182);
+            
+            writeReg (0x0E, period & 0xFF);
+            writeReg (0x0F, period >> 8);
+        }
+        
+        if (updateBend || lastNote != curNote)
+        {
+            updateOscs (curNote);
+            lastNote = curNote;
+        }
+    }
+    
+    int numSamples = buffer.getNumSamples();
+    runUntil (done, buffer, numSamples);
+}
+
+void SIDEngine::updateOscs (int curNote)
+{
+    // Channel 1
+    if (curNote != -1 && parameterIntValue (SIDAudioProcessor::paramWave1))
+    {
+        // set adsr
+        int a = parameterIntValue (SIDAudioProcessor::paramA1);
+        int d = parameterIntValue (SIDAudioProcessor::paramD1);
+        int s = parameterIntValue (SIDAudioProcessor::paramS1);
+        int r = parameterIntValue (SIDAudioProcessor::paramR1);
+        
+        writeReg (0x05, (a << 4) | d);
+        writeReg (0x06, (s << 4) | r);
+        
+        // set duty
+        int duty = 4095 - parameterIntValue (SIDAudioProcessor::paramPulseWidth1);
+        writeReg (0x02, duty & 0xFF);
+        writeReg (0x03, duty >> 8);
+        
+        // set freq
+        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
+        int period = int (freq * (14 * pow (2, 24)) / 14318182);
+        
+        writeReg (0x00, period & 0xFF);
+        writeReg (0x01, period >> 8);
+        
+        // set wave on
+        uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave1));
+        uint8_t sync = parameterBoolValue (SIDAudioProcessor::paramSync1) ? 0x02 : 0x00;
+        uint8_t ring = parameterBoolValue (SIDAudioProcessor::paramRing1) ? 0x04 : 0x00;
+        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+        writeReg (0x04, (wave << 4) | sync | ring | 0x01);
+    }
+    else
+    {
+        // set wave off
+        uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave1));
+        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+        writeReg (0x04, (wave << 4) | 0x00);
+    }
+    
+    // Channel 2
+    if (curNote != -1 && parameterIntValue (SIDAudioProcessor::paramWave2))
+    {
+        // set adsr
+        int a = parameterIntValue (SIDAudioProcessor::paramA2);
+        int d = parameterIntValue (SIDAudioProcessor::paramD2);
+        int s = parameterIntValue (SIDAudioProcessor::paramS2);
+        int r = parameterIntValue (SIDAudioProcessor::paramR2);
+        
+        writeReg (0x0C, (a << 4) | d);
+        writeReg (0x0D, (s << 4) | r);
+        
+        // set duty
+        int duty = 4095 - parameterIntValue (SIDAudioProcessor::paramPulseWidth2);
+        writeReg (0x09, duty & 0xFF);
+        writeReg (0x0A, duty >> 8);
+        
+        // set freq
+        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
+        int period = int (freq * (14 * pow (2, 24)) / 14318182);
+        
+        writeReg (0x07, period & 0xFF);
+        writeReg (0x08, period >> 8);
+        
+        // set wave on
+        uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave2));
+        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+        uint8_t sync = parameterIntValue (SIDAudioProcessor::paramSync2) ? 0x02 : 0x00;
+        uint8_t ring = parameterIntValue (SIDAudioProcessor::paramRing2) ? 0x04 : 0x00;
+        writeReg (0x0B, (wave << 4) | sync | ring | 0x01);
+    }
+    else
+    {
+        // set wave off
+        uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave2));
+        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+        writeReg (0x0B, (wave << 4) | 0x00);
+    }
+    
+    // Channel 3
+    if (curNote != -1 && parameterIntValue (SIDAudioProcessor::paramWave3))
+    {
+        // set adsr
+        int a = parameterIntValue (SIDAudioProcessor::paramA3);
+        int d = parameterIntValue (SIDAudioProcessor::paramD3);
+        int s = parameterIntValue (SIDAudioProcessor::paramS3);
+        int r = parameterIntValue (SIDAudioProcessor::paramR3);
+        
+        writeReg (0x13, (a << 4) | d);
+        writeReg (0x14, (s << 4) | r);
+        
+        // set duty
+        int duty = 4095 - parameterIntValue (SIDAudioProcessor::paramPulseWidth3);
+        writeReg (0x10, duty & 0xFF);
+        writeReg (0x11, duty >> 8);
+        
+        // set freq
+        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
+        int period = int (freq * (14 * pow (2, 24)) / 14318182);
+        
+        writeReg (0x0E, period & 0xFF);
+        writeReg (0x0F, period >> 8);
+        
+        // set wave on
+        uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave3));
+        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+        uint8_t sync = parameterIntValue (SIDAudioProcessor::paramSync3) ? 0x02 : 0x00;
+        uint8_t ring = parameterIntValue (SIDAudioProcessor::paramRing3) ? 0x04 : 0x00;
+        writeReg (0x12, (wave << 4) | sync | ring | 0x01);
+    }
+    else
+    {
+        // set wave off
+        uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave3));
+        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
+        writeReg (0x12, (wave << 4) | 0x00);
+    }
+}
+
+void SIDEngine::writeReg (uint8 reg, uint8 value)
+{
+    auto itr = regCache.find (reg);
+    if (itr == regCache.end())
+    {
+        regCache[reg] = value;
+        sid.write (reg, value);
+    }
+    else if (itr->second != value)
+    {
+        regCache[reg] = value;
+        sid.write (reg, value);
+    }
+}
+
+void SIDEngine::prepareBlock (AudioSampleBuffer& buffer)
+{
+    // Update the filters
+    uint8_t reg;
+    
+    reg = parameterIntValue (SIDAudioProcessor::paramCutoff) & 0x7;
+    writeReg (0x15, reg);
+    
+    reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramCutoff) >> 3);
+    writeReg (0x16, reg);
+    
+    reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramReso) << 4 |
+                   parameterIntValue (SIDAudioProcessor::paramFilter3) << 2 |
+                   parameterIntValue (SIDAudioProcessor::paramFilter2) << 1 |
+                   parameterIntValue (SIDAudioProcessor::paramFilter1) << 0);
+    
+    writeReg (0x17, reg);
+    
+    reg = uint8_t ((parameterIntValue (SIDAudioProcessor::paramOutput3) ? 0 : 1) << 7 |
+                    parameterIntValue(SIDAudioProcessor::paramHP) << 6 |
+                    parameterIntValue(SIDAudioProcessor::paramBP) << 5 |
+                    parameterIntValue(SIDAudioProcessor::paramLP) << 4 |
+                    parameterIntValue (SIDAudioProcessor::paramVol));
+    
+    writeReg (0x18, reg);
+    
+    updateOscs (lastNote);
+    
+    int done = 0;
+    runUntil (done, buffer, 0);
+}
+
+void SIDEngine::handleMessage (const MidiMessage& msg)
+{
+    bool updateBend = false;
+
+    if (msg.isNoteOn())
+    {
+        noteQueue.add (msg.getNoteNumber());
+    }
+    else if (msg.isNoteOff())
+    {
+        noteQueue.removeFirstMatchingValue (msg.getNoteNumber());
+    }
+    else if (msg.isAllNotesOff())
+    {
+        noteQueue.clear();
+    }
+    else if (msg.isPitchWheel())
+    {
+        updateBend = true;
+        pitchBend = (msg.getPitchWheelValue() - 8192) / 8192.0f * 2;
+    }
+    const int curNote = noteQueue.size() > 0 ? noteQueue.getLast() : -1;
+
+    if (updateBend)
+    {
+        updateOscs (curNote);
+        lastNote = curNote;
+    }
+}
+
+//==============================================================================
+String SIDAudioProcessor::paramPulseWidth1 = "pw1";
+String SIDAudioProcessor::paramWave1       = "w1";
+String SIDAudioProcessor::paramA1          = "a1";
+String SIDAudioProcessor::paramD1          = "d1";
+String SIDAudioProcessor::paramS1          = "s1";
+String SIDAudioProcessor::paramR1          = "r1";
+String SIDAudioProcessor::paramTune1       = "tune1";
+String SIDAudioProcessor::paramFine1       = "fine1";
+String SIDAudioProcessor::paramSync1       = "sync1";
+String SIDAudioProcessor::paramRing1       = "ring1";
+String SIDAudioProcessor::paramPulseWidth2 = "pw2";
+String SIDAudioProcessor::paramWave2       = "w2";
+String SIDAudioProcessor::paramA2          = "a2";
+String SIDAudioProcessor::paramD2          = "d2";
+String SIDAudioProcessor::paramS2          = "s2";
+String SIDAudioProcessor::paramR2          = "r2";
+String SIDAudioProcessor::paramTune2       = "tune2";
+String SIDAudioProcessor::paramFine2       = "fine2";
+String SIDAudioProcessor::paramSync2       = "sync2";
+String SIDAudioProcessor::paramRing2       = "ring2";
+String SIDAudioProcessor::paramPulseWidth3 = "pw3";
+String SIDAudioProcessor::paramWave3       = "w3";
+String SIDAudioProcessor::paramA3          = "a3";
+String SIDAudioProcessor::paramD3          = "d3";
+String SIDAudioProcessor::paramS3          = "s3";
+String SIDAudioProcessor::paramR3          = "r3";
+String SIDAudioProcessor::paramTune3       = "tune3";
+String SIDAudioProcessor::paramFine3       = "fine3";
+String SIDAudioProcessor::paramSync3       = "sync3";
+String SIDAudioProcessor::paramRing3       = "ring3";
+String SIDAudioProcessor::paramCutoff      = "cutoff";
+String SIDAudioProcessor::paramReso        = "reso";
+String SIDAudioProcessor::paramFilter1     = "f1";
+String SIDAudioProcessor::paramFilter2     = "f2";
+String SIDAudioProcessor::paramFilter3     = "f3";
+String SIDAudioProcessor::paramLP          = "lowpass";
+String SIDAudioProcessor::paramBP          = "bandpass";
+String SIDAudioProcessor::paramHP          = "highpass";
+String SIDAudioProcessor::paramVol         = "vol";
+String SIDAudioProcessor::paramOutput3     = "output3";
+String SIDAudioProcessor::paramVoices      = "voices";
 
 //==============================================================================
 String percentTextFunction (const Parameter& p, float userValue)
@@ -160,7 +504,7 @@ SIDAudioProcessor::SIDAudioProcessor()
 {
     auto cutoffTextFunction = [this] (const Parameter&, float userValue) -> String
     {
-        return String::formatted ("%d Hz", sid.regToCutoff (reg16 (userValue)));
+        return String::formatted ("%d Hz", sids[0]->regToCutoff (reg16 (userValue)));
     };
     
     addExtParam (paramWave1,        "Pulse 1 Wave",       "Wave",       "", {    0.0f,    4.0f, 1.0f, 1.0f },    1.0f, 0.0f, waveTextFunction);
@@ -203,6 +547,10 @@ SIDAudioProcessor::SIDAudioProcessor()
     addExtParam (paramReso,         "Resonance",          "Reso",       "", {    0.0f,   15.0f, 1.0f, 1.0f },    8.0f, 0.0f, percentTextFunction);
     addExtParam (paramVol,          "Volume",             "Volume",     "", {    0.0f,   15.0f, 1.0f, 1.0f },   10.0f, 0.0f, percentTextFunction);
     addExtParam (paramOutput3,      "Output 3",           "Output",     "", {    0.0f,    1.0f, 1.0f, 1.0f },    1.0f, 0.0f, onOffTextFunction);
+    addExtParam (paramVoices,       "Voices",             "Voices",     "", {    1.0f,    8.0f, 1.0f, 1.0f },    1.0f, 0.0f, wholeNumberTextFunction);
+    
+    for (int i = 0; i < 8; i++)
+        sids.add (new SIDEngine (*this));
 }
 
 SIDAudioProcessor::~SIDAudioProcessor()
@@ -212,11 +560,8 @@ SIDAudioProcessor::~SIDAudioProcessor()
 //==============================================================================
 void SIDAudioProcessor::prepareToPlay (double sampleRate, int)
 {
-    outputSmoothed.reset (sampleRate, 0.05);
-    
-    sid.reset();
-    sid.set_chip_model (MOS6581);
-    sid.set_sampling_parameters (1022730, SAMPLE_INTERPOLATE, sampleRate);
+    for (auto p : sids)
+        p->prepareToPlay (sampleRate);
     
     outputFilter.setCoefficients (IIRCoefficients::makeHighPass (sampleRate, 10));
 }
@@ -225,126 +570,60 @@ void SIDAudioProcessor::releaseResources()
 {
 }
 
-void SIDAudioProcessor::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
-{
-    int todo = jmin (pos, buffer.getNumSamples()) - done;
-    
-    while (todo > 0)
-    {
-        cycle_count clock = 64;
-        while (clock && todo > 0)
-        {
-            short out[1024];
-            int count = sid.clock (clock, out, jmin (todo, 1024));
-            
-            float* data = buffer.getWritePointer (0, done);
-            for (int i = 0; i < count; i++)
-                data[i] = out[i] / 32768.0f;
-        
-            done += count;
-            todo -= count;
-        }
-    }
-}
-
 void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
 {
-    // Update the filters
-    uint8_t reg;
-    
-    reg = parameterIntValue (paramCutoff) & 0x7;
-    writeReg (0x15, reg);
-    
-    reg = uint8_t (parameterIntValue (paramCutoff) >> 3);
-    writeReg (0x16, reg);
-    
-    reg = uint8_t (parameterIntValue (paramReso) << 4 |
-                   parameterIntValue (paramFilter3) << 2 |
-                   parameterIntValue (paramFilter2) << 1 |
-                   parameterIntValue (paramFilter1) << 0);
-    
-    writeReg (0x17, reg);
-    
-    reg = uint8_t ((parameterIntValue (paramOutput3) ? 0 : 1) << 7 |
-                    parameterIntValue(paramHP) << 6 |
-                    parameterIntValue(paramBP) << 5 |
-                    parameterIntValue(paramLP) << 4 |
-                    parameterIntValue (paramVol));
-    
-    writeReg (0x18, reg);
-    
-    updateOscs (lastNote);
-    
-    int done = 0;
-    runUntil (done, buffer, 0);
-    
-    for (auto itr : midi)
-    {
-        auto msg = itr.getMessage();
-        int pos = itr.samplePosition;
-
-        bool updateBend = false;
-        runUntil (done, buffer, pos);
-        
-        if (msg.isNoteOn())
-        {
-            noteQueue.add (msg.getNoteNumber());
-            velocity = msg.getVelocity();
-        }
-        else if (msg.isNoteOff())
-        {
-            noteQueue.removeFirstMatchingValue (msg.getNoteNumber());
-        }
-        else if (msg.isAllNotesOff())
-        {
-            noteQueue.clear();
-            pitchBend = 0;
-        }
-        else if (msg.isPitchWheel())
-        {
-            updateBend = true;
-            pitchBend = (msg.getPitchWheelValue() - 8192) / 8192.0f * 2;
-        }
-        
-        const int curNote = noteQueue.size() > 0 ? noteQueue.getLast() : -1;
-        
-        if (updateBend)
-        {
-            float freq;
-            int period;
-            
-            // set freq 1
-            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f));
-            period = int (freq * (14 * std::pow (2, 24)) / 14318182);
-            
-            writeReg (0x00, period & 0xFF);
-            writeReg (0x01, period >> 8);
-            
-            // set freq
-            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f));
-            period = int (freq * (14 * pow (2, 24)) / 14318182);
-            
-            writeReg (0x07, period & 0xFF);
-            writeReg (0x08, period >> 8);
-            
-            // set freq 3
-            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f));
-            period = int (freq * (14 * std::pow (2, 24)) / 14318182);
-            
-            writeReg (0x0E, period & 0xFF);
-            writeReg (0x0F, period >> 8);
-        }
-        
-        if (updateBend || lastNote != curNote)
-        {
-            updateOscs (curNote);
-            lastNote = curNote;
-        }
-    }
-    
     int numSamples = buffer.getNumSamples();
-    runUntil (done, buffer, numSamples);
-    
+    buffer.clear();
+
+   #if JUCE_IOS
+    state.processNextMidiBuffer (midi, 0, numSamples, true);
+   #endif
+
+    int voices = parameterIntValue (paramVoices);
+
+    if (voices == 1)
+    {
+        sids[0]->processBlock (buffer, midi);
+    }
+    else
+    {
+        int done = 0;
+
+        for (int i = 0; i < voices; i++)
+            sids[i]->prepareBlock (buffer);
+
+        for (auto itr : midi)
+        {
+            auto msg = itr.getMessage();
+            int pos = itr.samplePosition;
+
+            runUntil (done, buffer, pos);
+
+            if (msg.isNoteOn())
+            {
+                if (auto voice = findFreeVoice())
+                    voice->handleMessage (msg);
+            }
+            else if (msg.isNoteOff())
+            {
+                if (auto voice = findVoiceForNote (msg.getNoteNumber()))
+                    voice->handleMessage (msg);
+            }
+            else if (msg.isAllNotesOff())
+            {
+                for (int i = 0; i < voices; i++)
+                    sids[i]->handleMessage (msg);
+            }
+            else if (msg.isPitchWheel())
+            {
+                for (int i = 0; i < voices; i++)
+                    sids[i]->handleMessage (msg);
+            }
+        }
+
+        runUntil (done, buffer, numSamples);
+    }
+
     auto data = buffer.getWritePointer (0);
     outputFilter.processSamples (data, numSamples);
 
@@ -352,139 +631,43 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
         fifo.writeMono (data, numSamples);
 }
 
-void SIDAudioProcessor::updateOscs (int curNote)
+void SIDAudioProcessor::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
 {
-    // Channel 1
-    if (curNote != -1 && parameterIntValue (paramWave1))
+    int todo = jmin (pos, buffer.getNumSamples()) - done;
+
+    int voices = parameterIntValue (paramVoices);
+    for (int i = 0; i < voices; i++)
     {
-        // set adsr
-        int a = parameterIntValue (paramA1);
-        int d = parameterIntValue (paramD1);
-        int s = parameterIntValue (paramS1);
-        int r = parameterIntValue (paramR1);
-        
-        writeReg (0x05, (a << 4) | d);
-        writeReg (0x06, (s << 4) | r);
-        
-        // set duty
-        int duty = 4095 - parameterIntValue (paramPulseWidth1);
-        writeReg (0x02, duty & 0xFF);
-        writeReg (0x03, duty >> 8);
-        
-        // set freq
-        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune1) + parameterValue (paramFine1) / 100.0f));
-        int period = int (freq * (14 * pow (2, 24)) / 14318182);
-        
-        writeReg (0x00, period & 0xFF);
-        writeReg (0x01, period >> 8);
-        
-        // set wave on
-        uint8_t waveType = uint8_t (parameterIntValue (paramWave1));
-        uint8_t sync = parameterBoolValue (paramSync1) ? 0x02 : 0x00;
-        uint8_t ring = parameterBoolValue (paramRing1) ? 0x04 : 0x00;
-        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-        writeReg (0x04, (wave << 4) | sync | ring | 0x01);
+        int doneCopy = done;
+        sids[i]->runUntil (doneCopy, buffer, pos);
     }
-    else
-    {
-        // set wave off
-        uint8_t waveType = uint8_t (parameterIntValue (paramWave1));
-        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-        writeReg (0x04, (wave << 4) | 0x00);
-    }
-    
-    // Channel 2
-    if (curNote != -1 && parameterIntValue (paramWave2))
-    {
-        // set adsr
-        int a = parameterIntValue (paramA2);
-        int d = parameterIntValue (paramD2);
-        int s = parameterIntValue (paramS2);
-        int r = parameterIntValue (paramR2);
-        
-        writeReg (0x0C, (a << 4) | d);
-        writeReg (0x0D, (s << 4) | r);
-        
-        // set duty
-        int duty = 4095 - parameterIntValue (paramPulseWidth2);
-        writeReg (0x09, duty & 0xFF);
-        writeReg (0x0A, duty >> 8);
-        
-        // set freq
-        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune2) + parameterValue (paramFine2) / 100.0f));
-        int period = int (freq * (14 * pow (2, 24)) / 14318182);
-        
-        writeReg (0x07, period & 0xFF);
-        writeReg (0x08, period >> 8);
-        
-        // set wave on
-        uint8_t waveType = uint8_t (parameterIntValue (paramWave2));
-        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-        uint8_t sync = parameterIntValue (paramSync2) ? 0x02 : 0x00;
-        uint8_t ring = parameterIntValue (paramRing2) ? 0x04 : 0x00;
-        writeReg (0x0B, (wave << 4) | sync | ring | 0x01);
-    }
-    else
-    {
-        // set wave off
-        uint8_t waveType = uint8_t (parameterIntValue (paramWave2));
-        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-        writeReg (0x0B, (wave << 4) | 0x00);
-    }
-    
-    // Channel 3
-    if (curNote != -1 && parameterIntValue (paramWave3))
-    {
-        // set adsr
-        int a = parameterIntValue (paramA3);
-        int d = parameterIntValue (paramD3);
-        int s = parameterIntValue (paramS3);
-        int r = parameterIntValue (paramR3);
-        
-        writeReg (0x13, (a << 4) | d);
-        writeReg (0x14, (s << 4) | r);
-        
-        // set duty
-        int duty = 4095 - parameterIntValue (paramPulseWidth3);
-        writeReg (0x10, duty & 0xFF);
-        writeReg (0x11, duty >> 8);
-        
-        // set freq
-        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (paramTune3) + parameterValue (paramFine3) / 100.0f));
-        int period = int (freq * (14 * pow (2, 24)) / 14318182);
-        
-        writeReg (0x0E, period & 0xFF);
-        writeReg (0x0F, period >> 8);
-        
-        // set wave on
-        uint8_t waveType = uint8_t (parameterIntValue (paramWave3));
-        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-        uint8_t sync = parameterIntValue (paramSync3) ? 0x02 : 0x00;
-        uint8_t ring = parameterIntValue (paramRing3) ? 0x04 : 0x00;
-        writeReg (0x12, (wave << 4) | sync | ring | 0x01);
-    }
-    else
-    {
-        // set wave off
-        uint8_t waveType = uint8_t (parameterIntValue (paramWave3));
-        uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
-        writeReg (0x12, (wave << 4) | 0x00);
-    }
+
+    done += todo;
 }
 
-void SIDAudioProcessor::writeReg (uint8 reg, uint8 value)
+SIDEngine* SIDAudioProcessor::findFreeVoice()
 {
-    auto itr = regCache.find (reg);
-    if (itr == regCache.end())
+    int voices = parameterIntValue (paramVoices);
+    for (int i = 0; i < voices; i++)
     {
-        regCache[reg] = value;
-        sid.write (reg, value);
+        int vidx = (nextVoice + i) % voices;
+        if (sids[vidx]->getNote() == -1)
+        {
+            nextVoice = (nextVoice + 1) % voices;
+            return sids[vidx];
+        }
     }
-    else if (itr->second != value)
-    {
-        regCache[reg] = value;
-        sid.write (reg, value);
-    }
+    return nullptr;
+}
+
+SIDEngine* SIDAudioProcessor::findVoiceForNote (int note)
+{
+    int voices = parameterIntValue (paramVoices);
+    for (int i = 0; i < voices; i++)
+        if (sids[i]->getNote() == note)
+            return sids[i];
+
+    return nullptr;
 }
 
 //==============================================================================

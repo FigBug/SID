@@ -10,8 +10,44 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "sid.h"
+
+//==============================================================================
+class SIDAudioProcessor;
+class SIDEngine
+{
+public:
+    SIDEngine (SIDAudioProcessor& p);
+
+    void prepareToPlay (double sampleRate);
+    void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi);
+
+    void prepareBlock (AudioSampleBuffer& buffer);
+    void handleMessage (const MidiMessage& msg);
+    void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
+
+    int getNote()               { return lastNote;              }
+    int regToCutoff (reg16 val) { return sid.regToCutoff (val); }
+
+private:
+    int parameterIntValue (const String& uid);
+    float parameterValue (const String& uid);
+    bool parameterBoolValue (const String& uid);
+    void updateOscs (int curNote);
+    void writeReg (uint8 reg, uint8 value);
+
+    SIDAudioProcessor& processor;
+    
+    int lastNote = -1;
+    int velocity = 0;
+    float pitchBend = 0;
+    Array<int> noteQueue;
+    
+    SID sid;
+    
+    std::map<uint8, uint8> regCache;
+};
 
 //==============================================================================
 /**
@@ -36,66 +72,60 @@ public:
 
     //==============================================================================
     
-    static const char* paramWave1;
-    static const char* paramPulseWidth1;
-    static const char* paramA1;
-    static const char* paramD1;
-    static const char* paramS1;
-    static const char* paramR1;
-    static const char* paramTune1;
-    static const char* paramFine1;
-    static const char* paramSync1;
-    static const char* paramRing1;
-    static const char* paramWave2;
-    static const char* paramPulseWidth2;
-    static const char* paramA2;
-    static const char* paramD2;
-    static const char* paramS2;
-    static const char* paramR2;
-    static const char* paramTune2;
-    static const char* paramFine2;
-    static const char* paramSync2;
-    static const char* paramRing2;
-    static const char* paramWave3;
-    static const char* paramPulseWidth3;
-    static const char* paramA3;
-    static const char* paramD3;
-    static const char* paramS3;
-    static const char* paramR3;
-    static const char* paramTune3;
-    static const char* paramFine3;
-    static const char* paramSync3;
-    static const char* paramRing3;
-    static const char* paramCutoff;
-    static const char* paramReso;
-    static const char* paramFilter1;
-    static const char* paramFilter2;
-    static const char* paramFilter3;
-    static const char* paramLP;
-    static const char* paramBP;
-    static const char* paramHP;
-    static const char* paramVol;
-    static const char* paramOutput3;
+    static String paramWave1;
+    static String paramPulseWidth1;
+    static String paramA1;
+    static String paramD1;
+    static String paramS1;
+    static String paramR1;
+    static String paramTune1;
+    static String paramFine1;
+    static String paramSync1;
+    static String paramRing1;
+    static String paramWave2;
+    static String paramPulseWidth2;
+    static String paramA2;
+    static String paramD2;
+    static String paramS2;
+    static String paramR2;
+    static String paramTune2;
+    static String paramFine2;
+    static String paramSync2;
+    static String paramRing2;
+    static String paramWave3;
+    static String paramPulseWidth3;
+    static String paramA3;
+    static String paramD3;
+    static String paramS3;
+    static String paramR3;
+    static String paramTune3;
+    static String paramFine3;
+    static String paramSync3;
+    static String paramRing3;
+    static String paramCutoff;
+    static String paramReso;
+    static String paramFilter1;
+    static String paramFilter2;
+    static String paramFilter3;
+    static String paramLP;
+    static String paramBP;
+    static String paramHP;
+    static String paramVol;
+    static String paramOutput3;
+    static String paramVoices;
     
     gin::AudioFifo fifo {1, 44100};
 
 private:
     void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
-    void updateOscs (int curNote);
-    void writeReg (uint8 reg, uint8 value);
+    SIDEngine* findFreeVoice();
+    SIDEngine* findVoiceForNote (int note);
     
-    int lastNote = -1;
-    int velocity = 0;
-    float pitchBend = 0;
-    Array<int> noteQueue;
-    
-    LinearSmoothedValue<float> outputSmoothed;
-    
-    SID sid;
+    OwnedArray<SIDEngine> sids;
+    int nextVoice = 0;
+
     IIRFilter outputFilter;
-    
-    std::map<uint8, uint8> regCache;
-    
+        
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SIDAudioProcessor)
 };
