@@ -30,6 +30,8 @@ public:
     int getNote()               { return lastNote;              }
     int regToCutoff (reg16 val) { return sid.regToCutoff (val); }
 
+    void reset();
+
 private:
     int parameterIntValue (const String& uid);
     float parameterValue (const String& uid);
@@ -64,6 +66,7 @@ public:
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
+    void reset() override;
     void processBlock (AudioSampleBuffer&, MidiBuffer&) override;
 
     //==============================================================================

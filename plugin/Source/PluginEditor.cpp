@@ -85,9 +85,17 @@ void SIDAudioProcessorEditor::resized()
                 componentForId (pp->getUid())->setBounds (getGridArea (idx % 10, idx / 10));
             }
         }
+        else if (idx == 38)
+        {
+            componentForId (pp->getUid())->setBounds (getGridArea (16, 0));
+        }
+        else if (idx == 40)
+        {
+            componentForId (pp->getUid())->setBounds (getGridArea (16, 1));
+        }
         else
         {
-            componentForId (pp->getUid())->setBounds (getGridArea (14 + (idx - 30) % 3, (idx - 30) / 3));
+            componentForId (pp->getUid())->setBounds (getGridArea (9 + (idx - 30), 2));
         }
 
         idx++;
@@ -97,5 +105,5 @@ void SIDAudioProcessorEditor::resized()
     componentForId (AP::paramWave3)->setBounds (rc.removeFromTop (rc.getHeight() / 2).translated (0, 7));
     componentForId (AP::paramOutput3)->setBounds (rc);
 
-    scope.setBounds (getGridArea (9, 0, 5, 3).reduced (5));
+    scope.setBounds (getGridArea (9, 0, 7, 2).reduced (5));
 }

@@ -55,7 +55,7 @@ void SIDEngine::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
             
             float* data = buffer.getWritePointer (0, done);
             for (int i = 0; i < count; i++)
-                data[i] = out[i] / 32768.0f;
+                data[i] += out[i] / 32768.0f;
         
             done += count;
             todo -= count;
@@ -329,6 +329,11 @@ void SIDEngine::prepareBlock (AudioSampleBuffer& buffer)
     runUntil (done, buffer, 0);
 }
 
+void SIDEngine::reset()
+{
+    sid.reset();
+}
+
 void SIDEngine::handleMessage (const MidiMessage& msg)
 {
     bool updateBend = false;
@@ -353,6 +358,33 @@ void SIDEngine::handleMessage (const MidiMessage& msg)
     const int curNote = noteQueue.size() > 0 ? noteQueue.getLast() : -1;
 
     if (updateBend)
+    {
+        float freq;
+        int period;
+
+        // set freq 1
+        freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
+        period = int (freq * (14 * std::pow (2, 24)) / 14318182);
+
+        writeReg (0x00, period & 0xFF);
+        writeReg (0x01, period >> 8);
+
+        // set freq
+        freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
+        period = int (freq * (14 * pow (2, 24)) / 14318182);
+
+        writeReg (0x07, period & 0xFF);
+        writeReg (0x08, period >> 8);
+
+        // set freq 3
+        freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
+        period = int (freq * (14 * std::pow (2, 24)) / 14318182);
+
+        writeReg (0x0E, period & 0xFF);
+        writeReg (0x0F, period >> 8);
+    }
+
+    if (updateBend || curNote != lastNote)
     {
         updateOscs (curNote);
         lastNote = curNote;
@@ -568,6 +600,12 @@ void SIDAudioProcessor::prepareToPlay (double sampleRate, int)
 
 void SIDAudioProcessor::releaseResources()
 {
+}
+
+void SIDAudioProcessor::reset()
+{
+    for (auto p : sids)
+        p->reset();
 }
 
 void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
