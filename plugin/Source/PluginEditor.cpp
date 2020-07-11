@@ -16,7 +16,7 @@ using namespace gin;
 
 //==============================================================================
 SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
-  : GinAudioProcessorEditor (p, 60, 100), proc (p)
+  : ProcessorEditor (p, 60, 100), sidProc (p)
 {
     additionalProgramming = "Dag Lem";
     
@@ -54,7 +54,7 @@ SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 //==============================================================================
 void SIDAudioProcessorEditor::paint (Graphics& g)
 {
-    GinAudioProcessorEditor::paint (g);
+    ProcessorEditor::paint (g);
         
     g.drawImageAt (logo, getWidth() / 2 - logo.getWidth() / 2, 0);
 }
@@ -63,7 +63,7 @@ void SIDAudioProcessorEditor::resized()
 {
     using AP = SIDAudioProcessor;
     
-    GinAudioProcessorEditor::resized();
+    ProcessorEditor::resized();
     
     int idx = 0;
     Rectangle<int> rc;

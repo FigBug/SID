@@ -53,7 +53,7 @@ private:
 /**
 */
 class SIDAudioProcessorEditor;
-class SIDAudioProcessor : public gin::GinProcessor
+class SIDAudioProcessor : public gin::Processor
 {
 public:
     //==============================================================================
