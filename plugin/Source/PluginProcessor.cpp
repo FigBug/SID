@@ -612,7 +612,7 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
     buffer.clear();
 
    #if JUCE_IOS
-    state.processNextMidiBuffer (midi, 0, numSamples, true);
+    keyboardState.processNextMidiBuffer (midi, 0, numSamples, true);
    #endif
 
     int voices = parameterIntValue (paramVoices);

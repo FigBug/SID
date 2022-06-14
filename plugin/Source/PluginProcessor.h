@@ -128,6 +128,8 @@ private:
     int nextVoice = 0;
 
     IIRFilter outputFilter;
+
+    MidiKeyboardState keyboardState;
         
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SIDAudioProcessor)
