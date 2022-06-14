@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "PluginProcessor.h"
 
 //==============================================================================
@@ -29,7 +29,6 @@ public:
     SIDAudioProcessor& sidProc;
     
     gin::TriggeredScope scope {sidProc.fifo};
-    Image logo;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SIDAudioProcessorEditor)
 };

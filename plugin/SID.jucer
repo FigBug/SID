@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="JPnRUR" name="SID" projectType="audioplug" version="1.0.7"
               bundleIdentifier="com.socalabs.SID" includeBinaryInAppConfig="1"
-              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" pluginName="SID" pluginDesc="SID" pluginManufacturer="SocaLabs"
               pluginManufacturerCode="Soca" pluginCode="Sidd" pluginChannelConfigs="{0,1}"
               pluginIsSynth="1" pluginWantsMidiIn="1" pluginProducesMidiOut="0"
@@ -11,9 +11,9 @@
               companyWebsite="www.socalabs.com" companyEmail="info@socalabs.com"
               displaySplashScreen="0" reportAppUsage="0" splashScreenColour="Dark"
               buildStandalone="1" enableIAA="0" cppLanguageStandard="17" companyCopyright="SocaLabs"
-              pluginFormats="buildAU,buildStandalone,buildVST" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              pluginFormats="buildAU,buildStandalone,buildVST,buildVST3" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginAUMainType="'aumu'" pluginVSTCategory="kPlugCategSynth"
-              jucerFormatVersion="1">
+              jucerFormatVersion="1" defines="JUCE_MODAL_LOOPS_PERMITTED=1">
   <MAINGROUP id="dPRjsF" name="SID">
     <GROUP id="{EE796482-0D02-0052-80F4-B1FE6CE0D41A}" name="Source">
       <GROUP id="{3344A43A-B55B-7876-70B3-CCC17DA4B65B}" name="SID">
@@ -61,11 +61,12 @@
                vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4" hardenedRuntime="1">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16"
-                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"/>
+                       osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"
+                       macOSDeploymentTarget="10.9"/>
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="SID"
                        headerPath="../../../3rdparty/resid-0.16" osxArchitecture="64BitIntel"
                        osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"
-                       linkTimeOptimisation="0"/>
+                       linkTimeOptimisation="0" macOSDeploymentTarget="10.9"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../modules/juce/modules"/>
@@ -88,28 +89,29 @@
         <MODULEPATH id="gin_plugin" path="../modules/gin/modules"/>
         <MODULEPATH id="gin_dsp" path="../modules/gin/modules"/>
         <MODULEPATH id="juce_dsp" path="../modules/juce/modules"/>
+        <MODULEPATH id="gin_gui" path="../modules/gin/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2019 targetFolder="Builds/VisualStudio2019" extraDefs="VERSION=&quot;0.16&quot;"
-            toolset="v142" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
+    <VS2022 targetFolder="Builds/VisualStudio2022" extraDefs="VERSION=&quot;0.16&quot;"
+            vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="Win32"
-                       isDebug="1" optimisation="1" targetName="SID_32b" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
+                       isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
                        postbuildCommand="copy /Y &quot;$(OutDir)\$(TargetFileName)&quot; &quot;C:\Program Files (x86)\VSTPlugins&quot;"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
                        useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="Win32"
-                       isDebug="0" optimisation="3" targetName="SID_32b" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
+                       isDebug="0" optimisation="3" targetName="SID" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
                        postbuildCommand="copy /Y &quot;$(OutDir)\$(TargetFileName)&quot; &quot;C:\Program Files (x86)\VSTPlugins&quot;"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
                        linkTimeOptimisation="0" useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Debug64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="1" optimisation="1" targetName="SID_64b" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
+                       isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
                        postbuildCommand="copy /Y &quot;$(OutDir)\$(TargetFileName)&quot; &quot;C:\Program Files\VSTPlugins&quot;"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
                        useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Release64" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       isDebug="0" optimisation="3" targetName="SID_64b" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
+                       isDebug="0" optimisation="3" targetName="SID" headerPath="../../../3rdparty/resid-0.16&#10;../../../modules/slCommon"
                        postbuildCommand="copy /Y &quot;$(OutDir)\$(TargetFileName)&quot; &quot;C:\Program Files\VSTPlugins&quot;"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
                        linkTimeOptimisation="0" useRuntimeLibDLL="0"/>
@@ -135,8 +137,9 @@
         <MODULEPATH id="gin_plugin" path="../modules/gin/modules"/>
         <MODULEPATH id="gin_dsp" path="../modules/gin/modules"/>
         <MODULEPATH id="juce_dsp" path="../modules/juce/modules"/>
+        <MODULEPATH id="gin_gui" path="../modules/gin/modules"/>
       </MODULEPATHS>
-    </VS2019>
+    </VS2022>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraLinkerFlags="-fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,-O1 -Wl,--as-needed -Wl,--strip-all"
                 extraCompilerFlags="-fvisibility=hidden" vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
@@ -167,6 +170,7 @@
         <MODULEPATH id="gin_plugin" path="../modules/gin/modules"/>
         <MODULEPATH id="gin_dsp" path="../modules/gin/modules"/>
         <MODULEPATH id="juce_dsp" path="../modules/juce/modules"/>
+        <MODULEPATH id="gin_gui" path="../modules/gin/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
@@ -174,6 +178,7 @@
     <MODULE id="dRowAudio" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="gin" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="gin_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="gin_gui" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="gin_plugin" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>

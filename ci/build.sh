@@ -76,15 +76,13 @@ if [ "$OS" = "mac" ]; then
   xcodebuild -configuration Release || exit 1
 
   cp -R ~/Library/Audio/Plug-Ins/VST/$PLUGIN.vst "$ROOT/ci/bin"
+  cp -R ~/Library/Audio/Plug-Ins/VST3/$PLUGIN.vst3 "$ROOT/ci/bin"
   cp -R ~/Library/Audio/Plug-Ins/Components/$PLUGIN.component "$ROOT/ci/bin"
 
   cd "$ROOT/ci/bin"
-  for filename in ./*.vst; do
-    codesign -s "$DEV_APP_ID" -v "$filename" --options=runtime --timestamp
-  done
-  for filename in ./*.component; do
-    codesign -s "$DEV_APP_ID" -v "$filename" --options=runtime --timestamp
-  done
+  codesign -s "$DEV_APP_ID" -v $PLUGIN.vst --options=runtime --timestamp --force
+  codesign -s "$DEV_APP_ID" -v $PLUGIN.vst3 --options=runtime --timestamp --force
+  codesign -s "$DEV_APP_ID" -v $PLUGIN.component --options=runtime --timestamp --force
 
   # Build notarize tool
   cd "$ROOT/modules/gin/tools/notarize"
@@ -97,14 +95,15 @@ if [ "$OS" = "mac" ]; then
 
   # Notarize
   cd "$ROOT/ci/bin"
-  zip -r ${PLUGIN}_Mac.zip $PLUGIN.vst $PLUGIN.component
+  zip -r ${PLUGIN}_Mac.zip $PLUGIN.vst $PLUGIN.vst3 $PLUGIN.component
 
   "$ROOT/ci/bin/notarize" -ns ${PLUGIN}_Mac.zip $APPLE_USER $APPLE_PASS com.figbug.$PLUGIN.vst
 
   rm ${PLUGIN}_Mac.zip
   xcrun stapler staple $PLUGIN.vst
+  xcrun stapler staple $PLUGIN.vst3
   xcrun stapler staple $PLUGIN.component
-  zip -r ${PLUGIN}_Mac.zip $PLUGIN.vst $PLUGIN.component
+  zip -r ${PLUGIN}_Mac.zip $PLUGIN.vst $PLUGIN.vst3 $PLUGIN.component
   
   if [ "$BRANCH" = "release" ]; then
     curl -F "files=@${PLUGIN}_Mac.zip" "https://socalabs.com/files/set.php?key=$APIKEY"
@@ -117,12 +116,13 @@ if [ "$OS" = "linux" ]; then
   make CONFIG=Release
 
   cp ./build/$PLUGIN.so "$ROOT/ci/bin"
+  cp -r ./build/$PLUGIN.vst3 "$ROOT/ci/bin"
 
   cd "$ROOT/ci/bin"
 
   # Upload
   cd "$ROOT/ci/bin"
-  zip -r ${PLUGIN}_Linux.zip $PLUGIN.so
+  zip -r ${PLUGIN}_Linux.zip $PLUGIN.so $PLUGIN.vst3
 
   if [ "$BRANCH" = "release" ]; then
     curl -F "files=@${PLUGIN}_Linux.zip" "https://socalabs.com/files/set.php?key=$APIKEY"
@@ -136,16 +136,22 @@ if [ "$OS" = "win" ]; then
   MSBUILD_EXE=$("$VS_WHERE" -latest -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe")
   echo $MSBUILD_EXE
 
-  cd "$ROOT/plugin/Builds/VisualStudio2019"
+  cd "$ROOT/plugin/Builds/VisualStudio2022"
   "$MSBUILD_EXE" "$PLUGIN.sln" "//p:VisualStudioVersion=16.0" "//m" "//t:Build" "//p:Configuration=Release64" "//p:Platform=x64" "//p:PreferredToolArchitecture=x64"
   "$MSBUILD_EXE" "$PLUGIN.sln" "//p:VisualStudioVersion=16.0" "//m" "//t:Build" "//p:Configuration=Release" "//p:PlatformTarget=x86" "//p:PreferredToolArchitecture=x64"
 
   cd "$ROOT/ci/bin"
+    mkdir -p VST
+    mkdir -p VST_32
+    mkdir -p VST3
+    mkdir -p VST3_32
 
-  cp "$ROOT/plugin/Builds/VisualStudio2019/x64/Release64/VST/${PLUGIN}_64b.dll" .
-  cp "$ROOT/plugin/Builds/VisualStudio2019/Win32/Release/VST/${PLUGIN}_32b.dll" .
+    cp "$ROOT/plugin/Builds/VisualStudio2022/x64/Release64/VST/${PLUGIN}.dll" VST
+    cp "$ROOT/plugin/Builds/VisualStudio2022/x64/Release64/VST3/${PLUGIN}.vst3" VST3
+    cp "$ROOT/plugin/Builds/VisualStudio2022/Win32/Release/VST/${PLUGIN}.dll" VST_32
+    cp "$ROOT/plugin/Builds/VisualStudio2022/Win32/Release/VST3/${PLUGIN}.vst3" VST3_32
 
-  7z a ${PLUGIN}_Win.zip ${PLUGIN}_64b.dll ${PLUGIN}_32b.dll
+  7z a ${PLUGIN}_Win.zip VST VST_32 VST3 VST3_32
 
   if [ "$BRANCH" = "release" ]; then
     curl -F "files=@${PLUGIN}_Win.zip" "https://socalabs.com/files/set.php?key=$APIKEY"

@@ -11,8 +11,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-using namespace gin;
-
 //==============================================================================
 SIDEngine::SIDEngine (SIDAudioProcessor& p)
     : processor (p)
@@ -130,21 +128,21 @@ void SIDEngine::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
             int period;
             
             // set freq 1
-            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
+            freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
             period = int (freq * (14 * std::pow (2, 24)) / 14318182);
             
             writeReg (0x00, period & 0xFF);
             writeReg (0x01, period >> 8);
             
             // set freq
-            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
+            freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
             period = int (freq * (14 * pow (2, 24)) / 14318182);
             
             writeReg (0x07, period & 0xFF);
             writeReg (0x08, period >> 8);
             
             // set freq 3
-            freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
+            freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
             period = int (freq * (14 * std::pow (2, 24)) / 14318182);
             
             writeReg (0x0E, period & 0xFF);
@@ -182,7 +180,7 @@ void SIDEngine::updateOscs (int curNote)
         writeReg (0x03, duty >> 8);
         
         // set freq
-        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
+        float freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
         int period = int (freq * (14 * pow (2, 24)) / 14318182);
         
         writeReg (0x00, period & 0xFF);
@@ -221,7 +219,7 @@ void SIDEngine::updateOscs (int curNote)
         writeReg (0x0A, duty >> 8);
         
         // set freq
-        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
+        float freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
         int period = int (freq * (14 * pow (2, 24)) / 14318182);
         
         writeReg (0x07, period & 0xFF);
@@ -260,7 +258,7 @@ void SIDEngine::updateOscs (int curNote)
         writeReg (0x11, duty >> 8);
         
         // set freq
-        float freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
+        float freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
         int period = int (freq * (14 * pow (2, 24)) / 14318182);
         
         writeReg (0x0E, period & 0xFF);
@@ -363,21 +361,21 @@ void SIDEngine::handleMessage (const MidiMessage& msg)
         int period;
 
         // set freq 1
-        freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
+        freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
         period = int (freq * (14 * std::pow (2, 24)) / 14318182);
 
         writeReg (0x00, period & 0xFF);
         writeReg (0x01, period >> 8);
 
         // set freq
-        freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
+        freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
         period = int (freq * (14 * pow (2, 24)) / 14318182);
 
         writeReg (0x07, period & 0xFF);
         writeReg (0x08, period >> 8);
 
         // set freq 3
-        freq = float (getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
+        freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
         period = int (freq * (14 * std::pow (2, 24)) / 14318182);
 
         writeReg (0x0E, period & 0xFF);
@@ -435,37 +433,37 @@ String SIDAudioProcessor::paramOutput3     = "output3";
 String SIDAudioProcessor::paramVoices      = "voices";
 
 //==============================================================================
-String percentTextFunction (const Parameter& p, float userValue)
+String percentTextFunction (const gin::Parameter& p, float userValue)
 {
     return String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
 }
 
-String wholeNumberTextFunction (const Parameter&, float userValue)
+String wholeNumberTextFunction (const gin::Parameter&, float userValue)
 {
     return String::formatted ("%.0f", userValue);
 }
 
-String dutyCycleTextFunction (const Parameter&, float userValue)
+String dutyCycleTextFunction (const gin::Parameter&, float userValue)
 {
     return String::formatted ("%.0f%%", userValue / 4095.0 * 100);
 }
 
-String typeTextFunction (const Parameter&, float userValue)
+String typeTextFunction (const gin::Parameter&, float userValue)
 {
     return userValue > 0.0f ? "White" : "Periodic";
 }
 
-String filterTextFunction (const Parameter&, float userValue)
+String filterTextFunction (const gin::Parameter&, float userValue)
 {
     return userValue > 0.0f ? "Filter" : "Bypass";
 }
 
-String onOffTextFunction (const Parameter&, float userValue)
+String onOffTextFunction (const gin::Parameter&, float userValue)
 {
     return userValue > 0.0f ? "On" : "Off";
 }
 
-String waveTextFunction (const Parameter&, float userValue)
+String waveTextFunction (const gin::Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -478,7 +476,7 @@ String waveTextFunction (const Parameter&, float userValue)
     return "";
 }
 
-String aTextFunction (const Parameter&, float userValue)
+String aTextFunction (const gin::Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -502,7 +500,7 @@ String aTextFunction (const Parameter&, float userValue)
     }
 }
 
-String drTextFunction (const Parameter&, float userValue)
+String drTextFunction (const gin::Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -526,7 +524,7 @@ String drTextFunction (const Parameter&, float userValue)
     }
 }
 
-String sTextFunction (const Parameter&, float userValue)
+String sTextFunction (const gin::Parameter&, float userValue)
 {
     return String::formatted ("%.0f%%", userValue / 15 * 100);
 }
@@ -534,7 +532,7 @@ String sTextFunction (const Parameter&, float userValue)
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
 {
-    auto cutoffTextFunction = [this] (const Parameter&, float userValue) -> String
+    auto cutoffTextFunction = [this] (const gin::Parameter&, float userValue) -> String
     {
         return String::formatted ("%d Hz", sids[0]->regToCutoff (reg16 (userValue)));
     };

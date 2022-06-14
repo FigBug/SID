@@ -12,28 +12,24 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
 
-using namespace gin;
-
 //==============================================================================
 SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
-  : ProcessorEditor (p, 60, 100), sidProc (p)
+  : ProcessorEditor (p), sidProc (p)
 {
     additionalProgramming = "Dag Lem";
     
     using AP = SIDAudioProcessor;
     
-    logo = ImageFileFormat::loadFrom (BinaryData::logo_png, BinaryData::logo_pngSize);
-    
     for (auto pp : p.getPluginParameters())
     {
-        ParamComponent* c;
+        gin::ParamComponent* c;
         
         if (pp->getUid().contains ("tune") || pp->getUid().contains ("fine"))
-            c = new Knob (pp, true);
+            c = new gin::Knob (pp, true);
         else if (pp->getUid() == AP::paramWave1 || pp->getUid() == AP::paramWave2 || pp->getUid() == AP::paramWave3)
-            c = new Select (pp);
+            c = new gin::Select (pp);
         else
-            c = pp->isOnOff() ? (ParamComponent*) new Switch (pp) : (ParamComponent*) new Knob (pp);
+            c = pp->isOnOff() ? (gin::ParamComponent*) new gin::Switch (pp) : (gin::ParamComponent*) new gin::Knob (pp);
         
         addAndMakeVisible (c);
         controls.add (c);
@@ -45,6 +41,11 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
     
     scope.setNumSamplesPerPixel (2);
     scope.setVerticalZoomFactor (3.0f);
+    scope.setColour (gin::TriggeredScope::lineColourId, findColour (gin::PluginLookAndFeel::grey45ColourId));
+    scope.setColour (gin::TriggeredScope::traceColourId + 0, findColour (gin::PluginLookAndFeel::accentColourId));
+    scope.setColour (gin::TriggeredScope::envelopeColourId + 0, juce::Colours::transparentBlack);
+    scope.setColour (gin::TriggeredScope::traceColourId + 1, findColour (gin::PluginLookAndFeel::accentColourId));
+    scope.setColour (gin::TriggeredScope::envelopeColourId + 1, juce::Colours::transparentBlack);
 }
 
 SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
@@ -55,8 +56,6 @@ SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 void SIDAudioProcessorEditor::paint (Graphics& g)
 {
     ProcessorEditor::paint (g);
-        
-    g.drawImageAt (logo, getWidth() / 2 - logo.getWidth() / 2, 0);
 }
 
 void SIDAudioProcessorEditor::resized()
@@ -67,7 +66,7 @@ void SIDAudioProcessorEditor::resized()
     
     int idx = 0;
     Rectangle<int> rc;
-    for (auto pp : proc.getPluginParameters())
+    for (auto pp : sidProc.getPluginParameters())
     {
         if (idx < 30)
         {
