@@ -17,28 +17,28 @@ SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
   : ProcessorEditor (p), sidProc (p)
 {
     additionalProgramming = "Dag Lem";
-    
+
     using AP = SIDAudioProcessor;
-    
+
     for (auto pp : p.getPluginParameters())
     {
         gin::ParamComponent* c;
-        
+
         if (pp->getUid().contains ("tune") || pp->getUid().contains ("fine"))
             c = new gin::Knob (pp, true);
         else if (pp->getUid() == AP::paramWave1 || pp->getUid() == AP::paramWave2 || pp->getUid() == AP::paramWave3)
             c = new gin::Select (pp);
         else
             c = pp->isOnOff() ? (gin::ParamComponent*) new gin::Switch (pp) : (gin::ParamComponent*) new gin::Knob (pp);
-        
+
         addAndMakeVisible (c);
         controls.add (c);
     }
-    
+
     addAndMakeVisible (&scope);
-    
+
     setGridSize (17, 3);
-    
+
     scope.setNumSamplesPerPixel (2);
     scope.setVerticalZoomFactor (3.0f);
     scope.setColour (gin::TriggeredScope::lineColourId, findColour (gin::PluginLookAndFeel::grey45ColourId));
@@ -53,7 +53,7 @@ SIDAudioProcessorEditor::~SIDAudioProcessorEditor()
 }
 
 //==============================================================================
-void SIDAudioProcessorEditor::paint (Graphics& g)
+void SIDAudioProcessorEditor::paint (juce::Graphics& g)
 {
     ProcessorEditor::paint (g);
 }
@@ -61,11 +61,11 @@ void SIDAudioProcessorEditor::paint (Graphics& g)
 void SIDAudioProcessorEditor::resized()
 {
     using AP = SIDAudioProcessor;
-    
+
     ProcessorEditor::resized();
-    
+
     int idx = 0;
-    Rectangle<int> rc;
+    juce::Rectangle<int> rc;
     for (auto pp : sidProc.getPluginParameters())
     {
         if (idx < 30)
@@ -99,7 +99,7 @@ void SIDAudioProcessorEditor::resized()
 
         idx++;
     }
-    
+
     rc = getGridArea (0, 2);
     componentForId (AP::paramWave3)->setBounds (rc.removeFromTop (rc.getHeight() / 2).translated (0, 7));
     componentForId (AP::paramOutput3)->setBounds (rc);

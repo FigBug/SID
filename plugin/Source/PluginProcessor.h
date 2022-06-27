@@ -21,11 +21,11 @@ public:
     SIDEngine (SIDAudioProcessor& p);
 
     void prepareToPlay (double sampleRate);
-    void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi);
+    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midi);
 
-    void prepareBlock (AudioSampleBuffer& buffer);
-    void handleMessage (const MidiMessage& msg);
-    void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
+    void prepareBlock (juce::AudioSampleBuffer& buffer);
+    void handleMessage (const juce::MidiMessage& msg);
+    void runUntil (int& done, juce::AudioSampleBuffer& buffer, int pos);
 
     int getNote()               { return lastNote;              }
     int regToCutoff (reg16 val) { return sid.regToCutoff (val); }
@@ -33,22 +33,22 @@ public:
     void reset();
 
 private:
-    int parameterIntValue (const String& uid);
-    float parameterValue (const String& uid);
-    bool parameterBoolValue (const String& uid);
+    int parameterIntValue (const juce::String& uid);
+    float parameterValue (const juce::String& uid);
+    bool parameterBoolValue (const juce::String& uid);
     void updateOscs (int curNote);
-    void writeReg (uint8 reg, uint8 value);
+    void writeReg (uint8_t reg, uint8_t value);
 
     SIDAudioProcessor& processor;
-    
+
     int lastNote = -1;
     int velocity = 0;
     float pitchBend = 0;
-    Array<int> noteQueue;
-    
+    juce::Array<int> noteQueue;
+
     SID sid;
-    
-    std::map<uint8, uint8> regCache;
+
+    std::map<uint8_t, uint8_t> regCache;
 };
 
 //==============================================================================
@@ -67,71 +67,70 @@ public:
     void releaseResources() override;
 
     void reset() override;
-    void processBlock (AudioSampleBuffer&, MidiBuffer&) override;
+    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override;
 
     //==============================================================================
-    AudioProcessorEditor* createEditor() override;
+    juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
 
     //==============================================================================
-    
-    static String paramWave1;
-    static String paramPulseWidth1;
-    static String paramA1;
-    static String paramD1;
-    static String paramS1;
-    static String paramR1;
-    static String paramTune1;
-    static String paramFine1;
-    static String paramSync1;
-    static String paramRing1;
-    static String paramWave2;
-    static String paramPulseWidth2;
-    static String paramA2;
-    static String paramD2;
-    static String paramS2;
-    static String paramR2;
-    static String paramTune2;
-    static String paramFine2;
-    static String paramSync2;
-    static String paramRing2;
-    static String paramWave3;
-    static String paramPulseWidth3;
-    static String paramA3;
-    static String paramD3;
-    static String paramS3;
-    static String paramR3;
-    static String paramTune3;
-    static String paramFine3;
-    static String paramSync3;
-    static String paramRing3;
-    static String paramCutoff;
-    static String paramReso;
-    static String paramFilter1;
-    static String paramFilter2;
-    static String paramFilter3;
-    static String paramLP;
-    static String paramBP;
-    static String paramHP;
-    static String paramVol;
-    static String paramOutput3;
-    static String paramVoices;
-    
+
+    static juce::String paramWave1;
+    static juce::String paramPulseWidth1;
+    static juce::String paramA1;
+    static juce::String paramD1;
+    static juce::String paramS1;
+    static juce::String paramR1;
+    static juce::String paramTune1;
+    static juce::String paramFine1;
+    static juce::String paramSync1;
+    static juce::String paramRing1;
+    static juce::String paramWave2;
+    static juce::String paramPulseWidth2;
+    static juce::String paramA2;
+    static juce::String paramD2;
+    static juce::String paramS2;
+    static juce::String paramR2;
+    static juce::String paramTune2;
+    static juce::String paramFine2;
+    static juce::String paramSync2;
+    static juce::String paramRing2;
+    static juce::String paramWave3;
+    static juce::String paramPulseWidth3;
+    static juce::String paramA3;
+    static juce::String paramD3;
+    static juce::String paramS3;
+    static juce::String paramR3;
+    static juce::String paramTune3;
+    static juce::String paramFine3;
+    static juce::String paramSync3;
+    static juce::String paramRing3;
+    static juce::String paramCutoff;
+    static juce::String paramReso;
+    static juce::String paramFilter1;
+    static juce::String paramFilter2;
+    static juce::String paramFilter3;
+    static juce::String paramLP;
+    static juce::String paramBP;
+    static juce::String paramHP;
+    static juce::String paramVol;
+    static juce::String paramOutput3;
+    static juce::String paramVoices;
+
     gin::AudioFifo fifo {1, 44100};
 
 private:
-    void runUntil (int& done, AudioSampleBuffer& buffer, int pos);
+    void runUntil (int& done, juce::AudioSampleBuffer& buffer, int pos);
     SIDEngine* findFreeVoice();
     SIDEngine* findVoiceForNote (int note);
-    
-    OwnedArray<SIDEngine> sids;
+
+    juce::OwnedArray<SIDEngine> sids;
     int nextVoice = 0;
 
-    IIRFilter outputFilter;
+    juce::IIRFilter outputFilter;
 
-    MidiKeyboardState keyboardState;
-        
+    juce::MidiKeyboardState keyboardState;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SIDAudioProcessor)
 };
-

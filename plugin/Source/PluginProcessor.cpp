@@ -24,74 +24,76 @@ void SIDEngine::prepareToPlay (double sampleRate)
     sid.set_sampling_parameters (1022730, SAMPLE_INTERPOLATE, sampleRate);
 }
 
-int SIDEngine::parameterIntValue (const String& uid)
+int SIDEngine::parameterIntValue (const juce::String& uid)
 {
     return processor.parameterIntValue (uid);
 }
 
-float SIDEngine::parameterValue (const String& uid)
+float SIDEngine::parameterValue (const juce::String& uid)
 {
     return processor.parameterValue (uid);
 }
 
-bool SIDEngine::parameterBoolValue (const String& uid)
+bool SIDEngine::parameterBoolValue (const juce::String& uid)
 {
     return processor.parameterBoolValue (uid);
 }
 
-void SIDEngine::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
+void SIDEngine::runUntil (int& done, juce::AudioSampleBuffer& buffer, int pos)
 {
-    int todo = jmin (pos, buffer.getNumSamples()) - done;
-    
+    int todo = std::min (pos, buffer.getNumSamples()) - done;
+
     while (todo > 0)
     {
         cycle_count clock = 64;
         while (clock && todo > 0)
         {
             short out[1024];
-            int count = sid.clock (clock, out, jmin (todo, 1024));
-            
+            int count = sid.clock (clock, out, std::min (todo, 1024));
+
             float* data = buffer.getWritePointer (0, done);
             for (int i = 0; i < count; i++)
                 data[i] += out[i] / 32768.0f;
-        
+
             done += count;
             todo -= count;
         }
     }
 }
 
-void SIDEngine::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
+void SIDEngine::processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midi)
 {
+    buffer.clear();
+
     // Update the filters
     uint8_t reg;
-    
+
     reg = parameterIntValue (SIDAudioProcessor::paramCutoff) & 0x7;
     writeReg (0x15, reg);
-    
+
     reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramCutoff) >> 3);
     writeReg (0x16, reg);
-    
+
     reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramReso) << 4 |
                    parameterIntValue (SIDAudioProcessor::paramFilter3) << 2 |
                    parameterIntValue (SIDAudioProcessor::paramFilter2) << 1 |
                    parameterIntValue (SIDAudioProcessor::paramFilter1) << 0);
-    
+
     writeReg (0x17, reg);
-    
+
     reg = uint8_t ((parameterIntValue (SIDAudioProcessor::paramOutput3) ? 0 : 1) << 7 |
                     parameterIntValue(SIDAudioProcessor::paramHP) << 6 |
                     parameterIntValue(SIDAudioProcessor::paramBP) << 5 |
                     parameterIntValue(SIDAudioProcessor::paramLP) << 4 |
                     parameterIntValue (SIDAudioProcessor::paramVol));
-    
+
     writeReg (0x18, reg);
-    
+
     updateOscs (lastNote);
-    
+
     int done = 0;
     runUntil (done, buffer, 0);
-    
+
     for (auto itr : midi)
     {
         auto msg = itr.getMessage();
@@ -99,7 +101,7 @@ void SIDEngine::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
 
         bool updateBend = false;
         runUntil (done, buffer, pos);
-        
+
         if (msg.isNoteOn())
         {
             noteQueue.add (msg.getNoteNumber());
@@ -119,43 +121,43 @@ void SIDEngine::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
             updateBend = true;
             pitchBend = (msg.getPitchWheelValue() - 8192) / 8192.0f * 2;
         }
-        
+
         const int curNote = noteQueue.size() > 0 ? noteQueue.getLast() : -1;
-        
+
         if (updateBend)
         {
             float freq;
             int period;
-            
+
             // set freq 1
             freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
             period = int (freq * (14 * std::pow (2, 24)) / 14318182);
-            
+
             writeReg (0x00, period & 0xFF);
             writeReg (0x01, period >> 8);
-            
+
             // set freq
             freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
             period = int (freq * (14 * pow (2, 24)) / 14318182);
-            
+
             writeReg (0x07, period & 0xFF);
             writeReg (0x08, period >> 8);
-            
+
             // set freq 3
             freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
             period = int (freq * (14 * std::pow (2, 24)) / 14318182);
-            
+
             writeReg (0x0E, period & 0xFF);
             writeReg (0x0F, period >> 8);
         }
-        
+
         if (updateBend || lastNote != curNote)
         {
             updateOscs (curNote);
             lastNote = curNote;
         }
     }
-    
+
     int numSamples = buffer.getNumSamples();
     runUntil (done, buffer, numSamples);
 }
@@ -170,22 +172,22 @@ void SIDEngine::updateOscs (int curNote)
         int d = parameterIntValue (SIDAudioProcessor::paramD1);
         int s = parameterIntValue (SIDAudioProcessor::paramS1);
         int r = parameterIntValue (SIDAudioProcessor::paramR1);
-        
+
         writeReg (0x05, (a << 4) | d);
         writeReg (0x06, (s << 4) | r);
-        
+
         // set duty
         int duty = 4095 - parameterIntValue (SIDAudioProcessor::paramPulseWidth1);
         writeReg (0x02, duty & 0xFF);
         writeReg (0x03, duty >> 8);
-        
+
         // set freq
         float freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune1) + parameterValue (SIDAudioProcessor::paramFine1) / 100.0f));
         int period = int (freq * (14 * pow (2, 24)) / 14318182);
-        
+
         writeReg (0x00, period & 0xFF);
         writeReg (0x01, period >> 8);
-        
+
         // set wave on
         uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave1));
         uint8_t sync = parameterBoolValue (SIDAudioProcessor::paramSync1) ? 0x02 : 0x00;
@@ -200,7 +202,7 @@ void SIDEngine::updateOscs (int curNote)
         uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
         writeReg (0x04, (wave << 4) | 0x00);
     }
-    
+
     // Channel 2
     if (curNote != -1 && parameterIntValue (SIDAudioProcessor::paramWave2))
     {
@@ -209,22 +211,22 @@ void SIDEngine::updateOscs (int curNote)
         int d = parameterIntValue (SIDAudioProcessor::paramD2);
         int s = parameterIntValue (SIDAudioProcessor::paramS2);
         int r = parameterIntValue (SIDAudioProcessor::paramR2);
-        
+
         writeReg (0x0C, (a << 4) | d);
         writeReg (0x0D, (s << 4) | r);
-        
+
         // set duty
         int duty = 4095 - parameterIntValue (SIDAudioProcessor::paramPulseWidth2);
         writeReg (0x09, duty & 0xFF);
         writeReg (0x0A, duty >> 8);
-        
+
         // set freq
         float freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune2) + parameterValue (SIDAudioProcessor::paramFine2) / 100.0f));
         int period = int (freq * (14 * pow (2, 24)) / 14318182);
-        
+
         writeReg (0x07, period & 0xFF);
         writeReg (0x08, period >> 8);
-        
+
         // set wave on
         uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave2));
         uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
@@ -239,7 +241,7 @@ void SIDEngine::updateOscs (int curNote)
         uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
         writeReg (0x0B, (wave << 4) | 0x00);
     }
-    
+
     // Channel 3
     if (curNote != -1 && parameterIntValue (SIDAudioProcessor::paramWave3))
     {
@@ -248,22 +250,22 @@ void SIDEngine::updateOscs (int curNote)
         int d = parameterIntValue (SIDAudioProcessor::paramD3);
         int s = parameterIntValue (SIDAudioProcessor::paramS3);
         int r = parameterIntValue (SIDAudioProcessor::paramR3);
-        
+
         writeReg (0x13, (a << 4) | d);
         writeReg (0x14, (s << 4) | r);
-        
+
         // set duty
         int duty = 4095 - parameterIntValue (SIDAudioProcessor::paramPulseWidth3);
         writeReg (0x10, duty & 0xFF);
         writeReg (0x11, duty >> 8);
-        
+
         // set freq
         float freq = float (gin::getMidiNoteInHertz (curNote + pitchBend + parameterValue (SIDAudioProcessor::paramTune3) + parameterValue (SIDAudioProcessor::paramFine3) / 100.0f));
         int period = int (freq * (14 * pow (2, 24)) / 14318182);
-        
+
         writeReg (0x0E, period & 0xFF);
         writeReg (0x0F, period >> 8);
-        
+
         // set wave on
         uint8_t waveType = uint8_t (parameterIntValue (SIDAudioProcessor::paramWave3));
         uint8_t wave = waveType ? (1 << (waveType - 1)) : 0;
@@ -280,7 +282,7 @@ void SIDEngine::updateOscs (int curNote)
     }
 }
 
-void SIDEngine::writeReg (uint8 reg, uint8 value)
+void SIDEngine::writeReg (uint8_t reg, uint8_t value)
 {
     auto itr = regCache.find (reg);
     if (itr == regCache.end())
@@ -295,34 +297,34 @@ void SIDEngine::writeReg (uint8 reg, uint8 value)
     }
 }
 
-void SIDEngine::prepareBlock (AudioSampleBuffer& buffer)
+void SIDEngine::prepareBlock (juce::AudioSampleBuffer& buffer)
 {
     // Update the filters
     uint8_t reg;
-    
+
     reg = parameterIntValue (SIDAudioProcessor::paramCutoff) & 0x7;
     writeReg (0x15, reg);
-    
+
     reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramCutoff) >> 3);
     writeReg (0x16, reg);
-    
+
     reg = uint8_t (parameterIntValue (SIDAudioProcessor::paramReso) << 4 |
                    parameterIntValue (SIDAudioProcessor::paramFilter3) << 2 |
                    parameterIntValue (SIDAudioProcessor::paramFilter2) << 1 |
                    parameterIntValue (SIDAudioProcessor::paramFilter1) << 0);
-    
+
     writeReg (0x17, reg);
-    
+
     reg = uint8_t ((parameterIntValue (SIDAudioProcessor::paramOutput3) ? 0 : 1) << 7 |
                     parameterIntValue(SIDAudioProcessor::paramHP) << 6 |
                     parameterIntValue(SIDAudioProcessor::paramBP) << 5 |
                     parameterIntValue(SIDAudioProcessor::paramLP) << 4 |
                     parameterIntValue (SIDAudioProcessor::paramVol));
-    
+
     writeReg (0x18, reg);
-    
+
     updateOscs (lastNote);
-    
+
     int done = 0;
     runUntil (done, buffer, 0);
 }
@@ -332,7 +334,7 @@ void SIDEngine::reset()
     sid.reset();
 }
 
-void SIDEngine::handleMessage (const MidiMessage& msg)
+void SIDEngine::handleMessage (const juce::MidiMessage& msg)
 {
     bool updateBend = false;
 
@@ -390,80 +392,80 @@ void SIDEngine::handleMessage (const MidiMessage& msg)
 }
 
 //==============================================================================
-String SIDAudioProcessor::paramPulseWidth1 = "pw1";
-String SIDAudioProcessor::paramWave1       = "w1";
-String SIDAudioProcessor::paramA1          = "a1";
-String SIDAudioProcessor::paramD1          = "d1";
-String SIDAudioProcessor::paramS1          = "s1";
-String SIDAudioProcessor::paramR1          = "r1";
-String SIDAudioProcessor::paramTune1       = "tune1";
-String SIDAudioProcessor::paramFine1       = "fine1";
-String SIDAudioProcessor::paramSync1       = "sync1";
-String SIDAudioProcessor::paramRing1       = "ring1";
-String SIDAudioProcessor::paramPulseWidth2 = "pw2";
-String SIDAudioProcessor::paramWave2       = "w2";
-String SIDAudioProcessor::paramA2          = "a2";
-String SIDAudioProcessor::paramD2          = "d2";
-String SIDAudioProcessor::paramS2          = "s2";
-String SIDAudioProcessor::paramR2          = "r2";
-String SIDAudioProcessor::paramTune2       = "tune2";
-String SIDAudioProcessor::paramFine2       = "fine2";
-String SIDAudioProcessor::paramSync2       = "sync2";
-String SIDAudioProcessor::paramRing2       = "ring2";
-String SIDAudioProcessor::paramPulseWidth3 = "pw3";
-String SIDAudioProcessor::paramWave3       = "w3";
-String SIDAudioProcessor::paramA3          = "a3";
-String SIDAudioProcessor::paramD3          = "d3";
-String SIDAudioProcessor::paramS3          = "s3";
-String SIDAudioProcessor::paramR3          = "r3";
-String SIDAudioProcessor::paramTune3       = "tune3";
-String SIDAudioProcessor::paramFine3       = "fine3";
-String SIDAudioProcessor::paramSync3       = "sync3";
-String SIDAudioProcessor::paramRing3       = "ring3";
-String SIDAudioProcessor::paramCutoff      = "cutoff";
-String SIDAudioProcessor::paramReso        = "reso";
-String SIDAudioProcessor::paramFilter1     = "f1";
-String SIDAudioProcessor::paramFilter2     = "f2";
-String SIDAudioProcessor::paramFilter3     = "f3";
-String SIDAudioProcessor::paramLP          = "lowpass";
-String SIDAudioProcessor::paramBP          = "bandpass";
-String SIDAudioProcessor::paramHP          = "highpass";
-String SIDAudioProcessor::paramVol         = "vol";
-String SIDAudioProcessor::paramOutput3     = "output3";
-String SIDAudioProcessor::paramVoices      = "voices";
+juce::String SIDAudioProcessor::paramPulseWidth1 = "pw1";
+juce::String SIDAudioProcessor::paramWave1       = "w1";
+juce::String SIDAudioProcessor::paramA1          = "a1";
+juce::String SIDAudioProcessor::paramD1          = "d1";
+juce::String SIDAudioProcessor::paramS1          = "s1";
+juce::String SIDAudioProcessor::paramR1          = "r1";
+juce::String SIDAudioProcessor::paramTune1       = "tune1";
+juce::String SIDAudioProcessor::paramFine1       = "fine1";
+juce::String SIDAudioProcessor::paramSync1       = "sync1";
+juce::String SIDAudioProcessor::paramRing1       = "ring1";
+juce::String SIDAudioProcessor::paramPulseWidth2 = "pw2";
+juce::String SIDAudioProcessor::paramWave2       = "w2";
+juce::String SIDAudioProcessor::paramA2          = "a2";
+juce::String SIDAudioProcessor::paramD2          = "d2";
+juce::String SIDAudioProcessor::paramS2          = "s2";
+juce::String SIDAudioProcessor::paramR2          = "r2";
+juce::String SIDAudioProcessor::paramTune2       = "tune2";
+juce::String SIDAudioProcessor::paramFine2       = "fine2";
+juce::String SIDAudioProcessor::paramSync2       = "sync2";
+juce::String SIDAudioProcessor::paramRing2       = "ring2";
+juce::String SIDAudioProcessor::paramPulseWidth3 = "pw3";
+juce::String SIDAudioProcessor::paramWave3       = "w3";
+juce::String SIDAudioProcessor::paramA3          = "a3";
+juce::String SIDAudioProcessor::paramD3          = "d3";
+juce::String SIDAudioProcessor::paramS3          = "s3";
+juce::String SIDAudioProcessor::paramR3          = "r3";
+juce::String SIDAudioProcessor::paramTune3       = "tune3";
+juce::String SIDAudioProcessor::paramFine3       = "fine3";
+juce::String SIDAudioProcessor::paramSync3       = "sync3";
+juce::String SIDAudioProcessor::paramRing3       = "ring3";
+juce::String SIDAudioProcessor::paramCutoff      = "cutoff";
+juce::String SIDAudioProcessor::paramReso        = "reso";
+juce::String SIDAudioProcessor::paramFilter1     = "f1";
+juce::String SIDAudioProcessor::paramFilter2     = "f2";
+juce::String SIDAudioProcessor::paramFilter3     = "f3";
+juce::String SIDAudioProcessor::paramLP          = "lowpass";
+juce::String SIDAudioProcessor::paramBP          = "bandpass";
+juce::String SIDAudioProcessor::paramHP          = "highpass";
+juce::String SIDAudioProcessor::paramVol         = "vol";
+juce::String SIDAudioProcessor::paramOutput3     = "output3";
+juce::String SIDAudioProcessor::paramVoices      = "voices";
 
 //==============================================================================
-String percentTextFunction (const gin::Parameter& p, float userValue)
+juce::String percentTextFunction (const gin::Parameter& p, float userValue)
 {
-    return String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
+    return juce::String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
 }
 
-String wholeNumberTextFunction (const gin::Parameter&, float userValue)
+juce::String wholeNumberTextFunction (const gin::Parameter&, float userValue)
 {
-    return String::formatted ("%.0f", userValue);
+    return juce::String::formatted ("%.0f", userValue);
 }
 
-String dutyCycleTextFunction (const gin::Parameter&, float userValue)
+juce::String dutyCycleTextFunction (const gin::Parameter&, float userValue)
 {
-    return String::formatted ("%.0f%%", userValue / 4095.0 * 100);
+    return juce::String::formatted ("%.0f%%", userValue / 4095.0 * 100);
 }
 
-String typeTextFunction (const gin::Parameter&, float userValue)
+juce::String typeTextFunction (const gin::Parameter&, float userValue)
 {
     return userValue > 0.0f ? "White" : "Periodic";
 }
 
-String filterTextFunction (const gin::Parameter&, float userValue)
+juce::String filterTextFunction (const gin::Parameter&, float userValue)
 {
     return userValue > 0.0f ? "Filter" : "Bypass";
 }
 
-String onOffTextFunction (const gin::Parameter&, float userValue)
+juce::String onOffTextFunction (const gin::Parameter&, float userValue)
 {
     return userValue > 0.0f ? "On" : "Off";
 }
 
-String waveTextFunction (const gin::Parameter&, float userValue)
+juce::String waveTextFunction (const gin::Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -476,7 +478,7 @@ String waveTextFunction (const gin::Parameter&, float userValue)
     return "";
 }
 
-String aTextFunction (const gin::Parameter&, float userValue)
+juce::String aTextFunction (const gin::Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -500,7 +502,7 @@ String aTextFunction (const gin::Parameter&, float userValue)
     }
 }
 
-String drTextFunction (const gin::Parameter&, float userValue)
+juce::String drTextFunction (const gin::Parameter&, float userValue)
 {
     switch (int (userValue))
     {
@@ -524,19 +526,19 @@ String drTextFunction (const gin::Parameter&, float userValue)
     }
 }
 
-String sTextFunction (const gin::Parameter&, float userValue)
+juce::String sTextFunction (const gin::Parameter&, float userValue)
 {
-    return String::formatted ("%.0f%%", userValue / 15 * 100);
+    return juce::String::formatted ("%.0f%%", userValue / 15 * 100);
 }
 
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
 {
-    auto cutoffTextFunction = [this] (const gin::Parameter&, float userValue) -> String
+    auto cutoffTextFunction = [this] (const gin::Parameter&, float userValue) -> juce::String
     {
-        return String::formatted ("%d Hz", sids[0]->regToCutoff (reg16 (userValue)));
+        return juce::String::formatted ("%d Hz", sids[0]->regToCutoff (reg16 (userValue)));
     };
-    
+
     addExtParam (paramWave1,        "Pulse 1 Wave",       "Wave",       "", {    0.0f,    4.0f, 1.0f, 1.0f },    1.0f, 0.0f, waveTextFunction);
     addExtParam (paramPulseWidth1,  "Pulse 1 Pulse Width","PW",         "", {    0.0f, 4095.0f, 1.0f, 1.0f }, 2048.0f, 0.0f, dutyCycleTextFunction);
     addExtParam (paramA1,           "Pulse 1 A",          "A",          "", {    0.0f,   15.0f, 1.0f, 1.0f },    4.0f, 0.0f, aTextFunction);
@@ -578,7 +580,7 @@ SIDAudioProcessor::SIDAudioProcessor()
     addExtParam (paramVol,          "Volume",             "Volume",     "", {    0.0f,   15.0f, 1.0f, 1.0f },   10.0f, 0.0f, percentTextFunction);
     addExtParam (paramOutput3,      "Output 3",           "Output",     "", {    0.0f,    1.0f, 1.0f, 1.0f },    1.0f, 0.0f, onOffTextFunction);
     addExtParam (paramVoices,       "Voices",             "Voices",     "", {    1.0f,    8.0f, 1.0f, 1.0f },    1.0f, 0.0f, wholeNumberTextFunction);
-    
+
     for (int i = 0; i < 8; i++)
         sids.add (new SIDEngine (*this));
 }
@@ -592,8 +594,8 @@ void SIDAudioProcessor::prepareToPlay (double sampleRate, int)
 {
     for (auto p : sids)
         p->prepareToPlay (sampleRate);
-    
-    outputFilter.setCoefficients (IIRCoefficients::makeHighPass (sampleRate, 10));
+
+    outputFilter.setCoefficients (juce::IIRCoefficients::makeHighPass (sampleRate, 10));
 }
 
 void SIDAudioProcessor::releaseResources()
@@ -606,7 +608,7 @@ void SIDAudioProcessor::reset()
         p->reset();
 }
 
-void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
+void SIDAudioProcessor::processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer& midi)
 {
     int numSamples = buffer.getNumSamples();
     buffer.clear();
@@ -667,9 +669,9 @@ void SIDAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& mid
         fifo.writeMono (data, numSamples);
 }
 
-void SIDAudioProcessor::runUntil (int& done, AudioSampleBuffer& buffer, int pos)
+void SIDAudioProcessor::runUntil (int& done, juce::AudioSampleBuffer& buffer, int pos)
 {
-    int todo = jmin (pos, buffer.getNumSamples()) - done;
+    int todo = std::min (pos, buffer.getNumSamples()) - done;
 
     int voices = parameterIntValue (paramVoices);
     for (int i = 0; i < voices; i++)
@@ -712,14 +714,14 @@ bool SIDAudioProcessor::hasEditor() const
     return true;
 }
 
-AudioProcessorEditor* SIDAudioProcessor::createEditor()
+juce::AudioProcessorEditor* SIDAudioProcessor::createEditor()
 {
     return new SIDAudioProcessorEditor (*this);
 }
 
 //==============================================================================
 // This creates new instances of the plugin..
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SIDAudioProcessor();
 }
