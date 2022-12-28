@@ -61,8 +61,7 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" extraCompilerFlags="-Wunused-value"
                extraDefs="VERSION=&quot;0.16&quot;&#10;JUCE_COREGRAPHICS_DRAW_ASYNC=1"
-               vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4" hardenedRuntime="1"
-               iosDevelopmentTeamID="RLWFGYNE3S">
+               vstLegacyFolder="../modules/plugin_sdk/vstsdk2.4">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="SID" headerPath="../../../3rdparty/resid-0.16"
                        osxCompatibility="10.9 SDK" enablePluginBinaryCopyStep="1" recommendedWarnings="LLVM"
