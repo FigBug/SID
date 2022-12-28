@@ -93,6 +93,7 @@
         <MODULEPATH id="gin_dsp" path="../modules/gin/modules"/>
         <MODULEPATH id="juce_dsp" path="../modules/juce/modules"/>
         <MODULEPATH id="gin_gui" path="../modules/gin/modules"/>
+        <MODULEPATH id="gin_graphics" path="../modules/gin/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2022 targetFolder="Builds/VisualStudio2022" extraDefs="VERSION=&quot;0.16&quot;"
@@ -140,6 +141,7 @@
         <MODULEPATH id="gin_dsp" path="../modules/gin/modules"/>
         <MODULEPATH id="juce_dsp" path="../modules/juce/modules"/>
         <MODULEPATH id="gin_gui" path="../modules/gin/modules"/>
+        <MODULEPATH id="gin_graphics" path="../modules/gin/modules"/>
       </MODULEPATHS>
     </VS2022>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraLinkerFlags="-fdata-sections -ffunction-sections -Wl,--gc-sections -Wl,-O1 -Wl,--as-needed -Wl,--strip-all"
@@ -172,6 +174,7 @@
         <MODULEPATH id="gin_dsp" path="../modules/gin/modules"/>
         <MODULEPATH id="juce_dsp" path="../modules/juce/modules"/>
         <MODULEPATH id="gin_gui" path="../modules/gin/modules"/>
+        <MODULEPATH id="gin_graphics" path="../modules/gin/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
     <XCODE_IPHONE targetFolder="Builds/iOS" extraDefs="VERSION=&quot;0.16&quot;"
@@ -206,12 +209,14 @@
         <MODULEPATH id="gin_dsp" path="../modules/gin/modules"/>
         <MODULEPATH id="gin" path="../modules/gin/modules"/>
         <MODULEPATH id="gin_gui" path="../modules/gin/modules"/>
+        <MODULEPATH id="gin_graphics" path="../modules/gin/modules"/>
       </MODULEPATHS>
     </XCODE_IPHONE>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="gin" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="gin_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="gin_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="gin_gui" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="gin_plugin" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
