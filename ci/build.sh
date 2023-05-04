@@ -76,7 +76,7 @@ if [ "$OS" = "mac" ]; then
   xcodebuild -configuration Release || exit 1
 
   cp -R ~/Library/Audio/Plug-Ins/VST/$PLUGIN.vst "$ROOT/ci/bin"
-  cp -R ~/Library/Audio/Plug-Ins/VST3/$PLUGIN.vst3/Contents/x86_64-win/$PLUGIN.vst3 "$ROOT/ci/bin"
+  cp -R ~/Library/Audio/Plug-Ins/VST3/$PLUGIN.vst3 "$ROOT/ci/bin"
   cp -R ~/Library/Audio/Plug-Ins/Components/$PLUGIN.component "$ROOT/ci/bin"
 
   cd "$ROOT/ci/bin"
@@ -148,9 +148,9 @@ if [ "$OS" = "win" ]; then
     mkdir -p VST3_32
 
     cp "$ROOT/plugin/Builds/VisualStudio2022/x64/Release64/VST/${PLUGIN}.dll" VST
-    cp "$ROOT/plugin/Builds/VisualStudio2022/x64/Release64/VST3/${PLUGIN}.vst3" VST3
+    cp "$ROOT/plugin/Builds/VisualStudio2022/x64/Release64/VST3/${PLUGIN}.vst3/Contents/x86-win/${PLUGIN}.vst3" VST3
     cp "$ROOT/plugin/Builds/VisualStudio2022/Win32/Release/VST/${PLUGIN}.dll" VST_32
-    cp "$ROOT/plugin/Builds/VisualStudio2022/Win32/Release/VST3/${PLUGIN}.vst3" VST3_32
+    cp "$ROOT/plugin/Builds/VisualStudio2022/Win32/Release/VST3/${PLUGIN}.vst3/Contents/x86_64-win/${PLUGIN}.vst3" VST3_32
 
   7z a ${PLUGIN}_Win.zip VST VST_32 VST3 VST3_32
 
