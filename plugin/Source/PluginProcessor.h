@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "sid.h"
+#include "3rdparty/resid-0.16/sid.h"
 
 //==============================================================================
 class SIDAudioProcessor;
