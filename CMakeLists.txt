@@ -116,7 +116,7 @@ juce_add_plugin (${PLUGIN_NAME}
 				 AU_MAIN_TYPE kAudioUnitType_MusicDevice
 				 AU_EXPORT_PREFIX ${AU_ID}
 				 AU_SANDBOX_SAFE FALSE
-				 LV2URI LV2_URI)
+				 LV2URI ${LV2_URI})
 
 file (GLOB_RECURSE source_files CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/plugin/*.cpp
