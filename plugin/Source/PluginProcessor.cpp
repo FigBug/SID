@@ -533,7 +533,7 @@ juce::String sTextFunction (const gin::Parameter&, float userValue)
 
 //==============================================================================
 SIDAudioProcessor::SIDAudioProcessor()
-    : gin::Processor (false, gin::ProcessorOptions().withAdditionalCredits({"Dag Lem"})) 
+    : gin::Processor (false, gin::ProcessorOptions().withAdditionalCredits({"Dag Lem"}))
 {
     auto cutoffTextFunction = [this] (const gin::Parameter&, float userValue) -> juce::String
     {
@@ -584,6 +584,8 @@ SIDAudioProcessor::SIDAudioProcessor()
 
     for (int i = 0; i < 8; i++)
         sids.add (new SIDEngine (*this));
+    
+    init();
 }
 
 SIDAudioProcessor::~SIDAudioProcessor()
