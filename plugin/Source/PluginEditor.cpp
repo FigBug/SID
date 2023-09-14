@@ -16,8 +16,6 @@
 SIDAudioProcessorEditor::SIDAudioProcessorEditor (SIDAudioProcessor& p)
   : ProcessorEditor (p), sidProc (p)
 {
-    additionalProgramming = "Dag Lem";
-
     using AP = SIDAudioProcessor;
 
     for (auto pp : p.getPluginParameters())
