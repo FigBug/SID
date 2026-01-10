@@ -532,8 +532,16 @@ juce::String sTextFunction (const gin::Parameter&, float userValue)
 }
 
 //==============================================================================
+static gin::ProcessorOptions createProcessorOptions()
+{
+    gin::ProcessorOptions opts;
+    opts.withAdditionalCredits ({"Dag Lem"});
+    opts.hasMidiLearn = true;
+    return opts;
+}
+
 SIDAudioProcessor::SIDAudioProcessor()
-    : gin::Processor (false, gin::ProcessorOptions().withAdditionalCredits({"Dag Lem"}))
+    : gin::Processor (false, createProcessorOptions())
 {
     auto cutoffTextFunction = [this] (const gin::Parameter&, float userValue) -> juce::String
     {
@@ -615,6 +623,9 @@ void SIDAudioProcessor::processBlock (juce::AudioSampleBuffer& buffer, juce::Mid
 {
     int numSamples = buffer.getNumSamples();
     buffer.clear();
+
+    if (midiLearn)
+        midiLearn->processBlock (midi, numSamples);
 
    #if JUCE_IOS
     keyboardState.processNextMidiBuffer (midi, 0, numSamples, true);
