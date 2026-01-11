@@ -534,10 +534,9 @@ juce::String sTextFunction (const gin::Parameter&, float userValue)
 //==============================================================================
 static gin::ProcessorOptions createProcessorOptions()
 {
-    gin::ProcessorOptions opts;
-    opts.withAdditionalCredits ({"Dag Lem"});
-    opts.hasMidiLearn = true;
-    return opts;
+    return gin::ProcessorOptions()
+        .withAdditionalCredits ({"Dag Lem"})
+        .withMidiLearn();
 }
 
 SIDAudioProcessor::SIDAudioProcessor()
