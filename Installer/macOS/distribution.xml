@@ -12,7 +12,7 @@
         <line choice="com.socalabs.sid.vst3"/>
         <line choice="com.socalabs.sid.au"/>
         <line choice="com.socalabs.sid.clap"/>
-
+        <line choice="com.socalabs.sid.resources"/>
     </choices-outline>
 
     <choice id="com.socalabs.sid.vst"
@@ -43,10 +43,18 @@
         <pkg-ref id="com.socalabs.sid.clap.pkg"/>
     </choice>
 
+    <choice id="com.socalabs.sid.resources"
+            title="Factory Presets"
+            description="Install factory content to /Library/Audio/Presets/SocaLabs/SID"
+            visible="true"
+            enabled="false"
+            selected="true">
+        <pkg-ref id="com.socalabs.sid.resources.pkg"/>
+    </choice>
 
     <pkg-ref id="com.socalabs.sid.vst.pkg"   version="0">vst.pkg</pkg-ref>
     <pkg-ref id="com.socalabs.sid.vst3.pkg"  version="0">vst3.pkg</pkg-ref>
     <pkg-ref id="com.socalabs.sid.au.pkg"    version="0">au.pkg</pkg-ref>
     <pkg-ref id="com.socalabs.sid.clap.pkg"  version="0">clap.pkg</pkg-ref>
-
+    <pkg-ref id="com.socalabs.sid.resources.pkg" version="0">resources.pkg</pkg-ref>
 </installer-gui-script>

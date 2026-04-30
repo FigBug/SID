@@ -532,6 +532,47 @@ juce::String sTextFunction (const gin::Parameter&, float userValue)
 }
 
 //==============================================================================
+//==============================================================================
+namespace
+{
+    juce::File userResourceRoot()
+    {
+       #if JUCE_MAC
+        return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                  .getChildFile ("Library/Audio/Presets/SocaLabs/SID");
+       #elif JUCE_WINDOWS
+        return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                  .getChildFile ("SocaLabs/SID");
+       #else
+        return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                  .getChildFile ("SocaLabs/SID");
+       #endif
+    }
+
+    juce::File systemResourceRoot()
+    {
+       #if JUCE_MAC
+        return juce::File ("/Library/Audio/Presets/SocaLabs/SID");
+       #elif JUCE_WINDOWS
+        return juce::File::getSpecialLocation (juce::File::commonApplicationDataDirectory)
+                  .getChildFile ("SocaLabs/SID");
+       #else
+        return juce::File ("/usr/share/SocaLabs/SID");
+       #endif
+    }
+
+    juce::File legacyUserProgramDirectory()
+    {
+       #if JUCE_MAC
+        return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                  .getChildFile ("Application Support/com.socalabs/SID/programs");
+       #else
+        return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                  .getChildFile ("com.socalabs/SID/programs");
+       #endif
+    }
+}
+
 static gin::ProcessorOptions createProcessorOptions()
 {
     return gin::ProcessorOptions()
@@ -738,3 +779,17 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SIDAudioProcessor();
 }
+//==============================================================================
+juce::File SIDAudioProcessor::getProgramDirectory()
+{
+    auto dir = userResourceRoot().getChildFile ("Presets");
+    if (! dir.isDirectory())
+        dir.createDirectory();
+    return dir;
+}
+
+juce::Array<juce::File> SIDAudioProcessor::getFactoryProgramDirectories()
+{
+    return { systemResourceRoot().getChildFile ("Presets") };
+}
+

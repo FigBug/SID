@@ -59,6 +59,9 @@ class SIDAudioProcessor : public gin::Processor
 {
 public:
     //==============================================================================
+    juce::File getProgramDirectory() override;
+    juce::Array<juce::File> getFactoryProgramDirectories() override;
+
     SIDAudioProcessor();
     ~SIDAudioProcessor() override;
 

@@ -55,16 +55,16 @@ Name: english; MessagesFile: compiler:Default.isl
 Name: "vst";       Description: "VST plug-in";   Types: full custom; Flags: checkablealone
 Name: "vst3";      Description: "VST3 plug-in";  Types: full custom; Flags: checkablealone
 Name: "clap";      Description: "CLAP plug-in";  Types: full custom; Flags: checkablealone
-
+Name: "resources"; Description: "Factory presets"; Types: full custom; Flags: fixed
 
 [InstallDelete]
 Type: files;          Name: "{commoncf64}\VST\SID.dll";   Components: vst
 Type: filesandordirs; Name: "{commoncf64}\VST3\SID.vst3"; Components: vst3
 Type: files;          Name: "{commoncf64}\CLAP\SID.clap"; Components: clap
-
+Type: filesandordirs; Name: "{commonappdata}\SocaLabs\SID\Presets";        Components: resources
 
 [Files]
 Source: "bin\VST\SID.dll";    DestDir: "{commoncf64}\VST";                     Flags: ignoreversion overwritereadonly; Components: vst
 Source: "bin\VST3\SID.vst3\*"; DestDir: "{commoncf64}\VST3\SID.vst3\"; Flags: ignoreversion overwritereadonly recursesubdirs; Components: vst3
 Source: "bin\CLAP\SID.clap";   DestDir: "{commoncf64}\CLAP";                    Flags: ignoreversion overwritereadonly; Components: clap
-
+Source: "..\_flat_presets\*.xml"; DestDir: "{commonappdata}\SocaLabs\SID\Presets\"; Flags: ignoreversion; Components: resources

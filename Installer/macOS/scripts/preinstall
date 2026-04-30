@@ -3,4 +3,5 @@ rm -Rf "/Library/Audio/Plug-Ins/VST/SID.vst"
 rm -Rf "/Library/Audio/Plug-Ins/VST3/SID.vst3"
 rm -Rf "/Library/Audio/Plug-Ins/Components/SID.component"
 rm -Rf "/Library/Audio/Plug-Ins/CLAP/SID.clap"
+rm -Rf "/Library/Audio/Presets/SocaLabs/SID/Presets"
 exit 0

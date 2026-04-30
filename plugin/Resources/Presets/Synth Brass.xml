@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<state name="Synth Brass" valueTree="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&#13;&#10;&lt;state/&gt;&#13;&#10;">
+  <param uid="w1" val="1.0"/>
+  <param uid="pw1" val="2048.0"/>
+  <param uid="a1" val="4.0"/>
+  <param uid="d1" val="4.0"/>
+  <param uid="s1" val="8.0"/>
+  <param uid="r1" val="4.0"/>
+  <param uid="tune1" val="0.0"/>
+  <param uid="fine1" val="0.0"/>
+  <param uid="sync1" val="0.0"/>
+  <param uid="ring1" val="0.0"/>
+  <param uid="w2" val="1.0"/>
+  <param uid="pw2" val="2048.0"/>
+  <param uid="a2" val="4.0"/>
+  <param uid="d2" val="4.0"/>
+  <param uid="s2" val="8.0"/>
+  <param uid="r2" val="4.0"/>
+  <param uid="tune2" val="5.0"/>
+  <param uid="fine2" val="0.0"/>
+  <param uid="sync2" val="0.0"/>
+  <param uid="ring2" val="0.0"/>
+  <param uid="w3" val="0.0"/>
+  <param uid="pw3" val="2048.0"/>
+  <param uid="a3" val="4.0"/>
+  <param uid="d3" val="4.0"/>
+  <param uid="s3" val="8.0"/>
+  <param uid="r3" val="4.0"/>
+  <param uid="tune3" val="0.0"/>
+  <param uid="fine3" val="0.0"/>
+  <param uid="sync3" val="0.0"/>
+  <param uid="ring3" val="0.0"/>
+  <param uid="f1" val="1.0"/>
+  <param uid="f2" val="1.0"/>
+  <param uid="f3" val="0.0"/>
+  <param uid="lowpass" val="1.0"/>
+  <param uid="bandpass" val="0.0"/>
+  <param uid="highpass" val="0.0"/>
+  <param uid="cutoff" val="1500.0"/>
+  <param uid="reso" val="6.0"/>
+  <param uid="vol" val="10.0"/>
+  <param uid="output3" val="1.0"/>
+  <param uid="voices" val="1.0"/>
+</state>

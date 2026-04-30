@@ -1,3 +1,6 @@
+1.1.3:
+- Added factory presets
+
 1.1.2:
 - Zip file updated
 
