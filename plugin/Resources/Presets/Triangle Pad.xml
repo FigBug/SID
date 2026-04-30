@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <state name="Triangle Pad" valueTree="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&#13;&#10;&lt;state/&gt;&#13;&#10;">
-  <param uid="w1" val="0.0"/>
+  <param uid="w1" val="1.0"/>
   <param uid="pw1" val="2048.0"/>
   <param uid="a1" val="8.0"/>
   <param uid="d1" val="4.0"/>
@@ -11,7 +11,7 @@
   <param uid="fine1" val="0.0"/>
   <param uid="sync1" val="0.0"/>
   <param uid="ring1" val="0.0"/>
-  <param uid="w2" val="0.0"/>
+  <param uid="w2" val="1.0"/>
   <param uid="pw2" val="2048.0"/>
   <param uid="a2" val="8.0"/>
   <param uid="d2" val="4.0"/>

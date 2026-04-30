@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <state name="Ring Bell" valueTree="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&#13;&#10;&lt;state/&gt;&#13;&#10;">
-  <param uid="w1" val="0.0"/>
+  <param uid="w1" val="1.0"/>
   <param uid="pw1" val="2048.0"/>
   <param uid="a1" val="0.0"/>
   <param uid="d1" val="8.0"/>
@@ -21,7 +21,7 @@
   <param uid="fine2" val="0.0"/>
   <param uid="sync2" val="0.0"/>
   <param uid="ring2" val="0.0"/>
-  <param uid="w3" val="0.0"/>
+  <param uid="w3" val="1.0"/>
   <param uid="pw3" val="2048.0"/>
   <param uid="a3" val="4.0"/>
   <param uid="d3" val="4.0"/>
