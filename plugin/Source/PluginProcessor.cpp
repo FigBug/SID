@@ -437,100 +437,133 @@ juce::String SIDAudioProcessor::paramOutput3     = "output3";
 juce::String SIDAudioProcessor::paramVoices      = "voices";
 
 //==============================================================================
-juce::String percentTextFunction (const gin::Parameter& p, float userValue)
+// Maps typed text like "240 ms" or "1.5 s" to the index of the nearest entry in
+// a table of times in milliseconds
+static float nearestTimeIndex (const juce::String& text, const float* msTable, int count)
 {
-    return juce::String::formatted ("%.0f%%", userValue / p.getUserRangeEnd() * 100);
+    auto t = text.trim();
+    auto ms = t.getFloatValue();
+    if (! t.endsWithIgnoreCase ("ms") && t.endsWithIgnoreCase ("s"))
+        ms *= 1000.0f;
+
+    int best = 0;
+    for (int i = 1; i < count; i++)
+        if (std::abs (msTable[i] - ms) < std::abs (msTable[best] - ms))
+            best = i;
+
+    return float (best);
 }
 
-juce::String wholeNumberTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> percentTextFunction (const gin::Parameter& p, const std::variant<float, juce::String>& in)
 {
-    return juce::String::formatted ("%.0f", userValue);
+    if (auto v = std::get_if<float> (&in))
+        return juce::String::formatted ("%.0f%%", *v / p.getUserRangeEnd() * 100);
+
+    return std::get<juce::String> (in).getFloatValue() / 100.0f * p.getUserRangeEnd();
 }
 
-juce::String dutyCycleTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> wholeNumberTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    return juce::String::formatted ("%.0f%%", userValue / 4095.0 * 100);
+    if (auto v = std::get_if<float> (&in))
+        return juce::String::formatted ("%.0f", *v);
+
+    return std::get<juce::String> (in).getFloatValue();
 }
 
-juce::String typeTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> dutyCycleTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    return userValue > 0.0f ? "White" : "Periodic";
+    if (auto v = std::get_if<float> (&in))
+        return juce::String::formatted ("%.0f%%", *v / 4095.0 * 100);
+
+    return std::get<juce::String> (in).getFloatValue() / 100.0f * 4095.0f;
 }
 
-juce::String filterTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> typeTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    return userValue > 0.0f ? "Filter" : "Bypass";
+    if (auto v = std::get_if<float> (&in))
+        return juce::String (*v > 0.0f ? "White" : "Periodic");
+
+    auto t = std::get<juce::String> (in).trim();
+    if (t.equalsIgnoreCase ("White"))    return 1.0f;
+    if (t.equalsIgnoreCase ("Periodic")) return 0.0f;
+    return t.getFloatValue();
 }
 
-juce::String onOffTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> filterTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    return userValue > 0.0f ? "On" : "Off";
+    if (auto v = std::get_if<float> (&in))
+        return juce::String (*v > 0.0f ? "Filter" : "Bypass");
+
+    auto t = std::get<juce::String> (in).trim();
+    if (t.equalsIgnoreCase ("Filter")) return 1.0f;
+    if (t.equalsIgnoreCase ("Bypass")) return 0.0f;
+    return t.getFloatValue();
 }
 
-juce::String waveTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> onOffTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    switch (int (userValue))
+    if (auto v = std::get_if<float> (&in))
+        return juce::String (*v > 0.0f ? "On" : "Off");
+
+    auto t = std::get<juce::String> (in).trim();
+    if (t.equalsIgnoreCase ("On"))  return 1.0f;
+    if (t.equalsIgnoreCase ("Off")) return 0.0f;
+    return t.getFloatValue();
+}
+
+std::variant<float, juce::String> waveTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
+{
+    const juce::StringArray names { "Off", "Triangle", "Saw", "Square", "Noise" };
+
+    if (auto v = std::get_if<float> (&in))
     {
-        case 0: return "Off";
-        case 1: return "Triangle";
-        case 2: return "Saw";
-        case 3: return "Square";
-        case 4: return "Noise";
+        auto idx = int (*v);
+        return juce::isPositiveAndBelow (idx, names.size()) ? names[idx] : juce::String();
     }
-    return "";
+
+    auto t = std::get<juce::String> (in).trim();
+    for (int i = 0; i < names.size(); i++)
+        if (t.equalsIgnoreCase (names[i]))
+            return float (i);
+    return t.getFloatValue();
 }
 
-juce::String aTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> aTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    switch (int (userValue))
+    static const float times[] = { 2.0f, 8.0f, 16.0f, 24.0f, 38.0f, 56.0f, 68.0f, 80.0f,
+                                   100.0f, 240.0f, 500.0f, 800.0f, 1000.0f, 3000.0f, 5000.0f, 8000.0f };
+
+    if (auto v = std::get_if<float> (&in))
     {
-        case 0: return "2 ms";
-        case 1: return "8 ms";
-        case 2: return "16 ms";
-        case 3: return "24 ms";
-        case 4: return "38 ms";
-        case 5: return "56 ms";
-        case 6: return "68 ms";
-        case 7: return "80 ms";
-        case 8: return "100 ms";
-        case 9: return "240 ms";
-        case 10: return "500 ms";
-        case 11: return "800 ms";
-        case 12: return "1 s";
-        case 13: return "3 s";
-        case 14: return "5 s";
-        case 15: return "8 s";
-        default: return "";
+        auto ms = times[juce::jlimit (0, 15, int (*v))];
+        return ms >= 1000.0f ? gin::formatNumber (ms / 1000.0f) + " s"
+                             : gin::formatNumber (ms) + " ms";
     }
+
+    return nearestTimeIndex (std::get<juce::String> (in), times, 16);
 }
 
-juce::String drTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> drTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    switch (int (userValue))
+    static const float times[] = { 6.0f, 24.0f, 48.0f, 72.0f, 114.0f, 168.0f, 204.0f, 240.0f,
+                                   300.0f, 750.0f, 1500.0f, 2400.0f, 3000.0f, 9000.0f, 15000.0f, 24000.0f };
+
+    if (auto v = std::get_if<float> (&in))
     {
-        case 0: return "6 ms";
-        case 1: return "24 ms";
-        case 2: return "48 ms";
-        case 3: return "72 ms";
-        case 4: return "114 ms";
-        case 5: return "168 ms";
-        case 6: return "204 ms";
-        case 7: return "240 ms";
-        case 8: return "300 ms";
-        case 9: return "750 ms";
-        case 10: return "1.5 s";
-        case 11: return "2.4 s";
-        case 12: return "3 s";
-        case 13: return "9 s";
-        case 14: return "15 s";
-        case 15: return "24 s";
-        default: return "";
+        auto ms = times[juce::jlimit (0, 15, int (*v))];
+        return ms >= 1000.0f ? gin::formatNumber (ms / 1000.0f) + " s"
+                             : gin::formatNumber (ms) + " ms";
     }
+
+    return nearestTimeIndex (std::get<juce::String> (in), times, 16);
 }
 
-juce::String sTextFunction (const gin::Parameter&, float userValue)
+std::variant<float, juce::String> sTextFunction (const gin::Parameter&, const std::variant<float, juce::String>& in)
 {
-    return juce::String::formatted ("%.0f%%", userValue / 15 * 100);
+    if (auto v = std::get_if<float> (&in))
+        return juce::String::formatted ("%.0f%%", *v / 15 * 100);
+
+    return std::get<juce::String> (in).getFloatValue() / 100.0f * 15.0f;
 }
 
 //==============================================================================
